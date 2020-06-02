@@ -35,14 +35,18 @@ struct ContentView: View {
                             Section(header: Text("Incomplete Tasks")){
                                 ForEach(self.tasksDueToday){
                                     task in
-                                    Text(task.task_title)
+                                    if !task.task_completed {
+                                        Text(task.task_title)
+                                    }
                                 }
                             }
                             
                             Section(header: Text("Completed Tasks")){
                                 ForEach(self.tasksDueToday){
                                     task in
-                                    Text(task.task_title)
+                                    if task.task_completed {
+                                        Text(task.task_title)
+                                    }
                                 }
                             }
                         }
@@ -102,9 +106,9 @@ struct ContentView: View {
                                                     }
                                                     
                                                     if task.task_frequency == 0 {
-                                                      
+                                                        
                                                     } else if task.task_frequency == 1 {
-                                                          self.tasksDueToday.append(task)
+                                                        self.tasksDueToday.append(task)
                                                     } else {
                                                         
                                                     }
@@ -132,7 +136,7 @@ struct ContentView: View {
                 } else if task.task_frequency == 2 {
                     
                 } else {
-                
+                    
                 }
             }
         }
