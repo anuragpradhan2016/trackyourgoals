@@ -15,6 +15,10 @@
 		92016D3124841BC000A79E06 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 92016D3024841BC000A79E06 /* Preview Assets.xcassets */; };
 		92016D3424841BC000A79E06 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 92016D3224841BC000A79E06 /* LaunchScreen.storyboard */; };
 		92016D3F24841BC000A79E06 /* TrackYourGoalsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92016D3E24841BC000A79E06 /* TrackYourGoalsTests.swift */; };
+		92016D4C2486B97300A79E06 /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92016D4B2486B97300A79E06 /* Task.swift */; };
+		92016D502486C37200A79E06 /* ViewRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92016D4F2486C37200A79E06 /* ViewRouter.swift */; };
+		92016D522486CBFB00A79E06 /* AddTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92016D512486CBFB00A79E06 /* AddTaskView.swift */; };
+		92016D5424870ED200A79E06 /* CustomTabViewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92016D5324870ED200A79E06 /* CustomTabViewItem.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -40,6 +44,10 @@
 		92016D3A24841BC000A79E06 /* TrackYourGoalsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TrackYourGoalsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		92016D3E24841BC000A79E06 /* TrackYourGoalsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackYourGoalsTests.swift; sourceTree = "<group>"; };
 		92016D4024841BC000A79E06 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		92016D4B2486B97300A79E06 /* Task.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
+		92016D4F2486C37200A79E06 /* ViewRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewRouter.swift; sourceTree = "<group>"; };
+		92016D512486CBFB00A79E06 /* AddTaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTaskView.swift; sourceTree = "<group>"; };
+		92016D5324870ED200A79E06 /* CustomTabViewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTabViewItem.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -84,6 +92,10 @@
 				92016D2424841BBE00A79E06 /* AppDelegate.swift */,
 				92016D2624841BBE00A79E06 /* SceneDelegate.swift */,
 				92016D2B24841BBE00A79E06 /* ContentView.swift */,
+				92016D4B2486B97300A79E06 /* Task.swift */,
+				92016D512486CBFB00A79E06 /* AddTaskView.swift */,
+				92016D5324870ED200A79E06 /* CustomTabViewItem.swift */,
+				92016D4F2486C37200A79E06 /* ViewRouter.swift */,
 				92016D2D24841BC000A79E06 /* Assets.xcassets */,
 				92016D3224841BC000A79E06 /* LaunchScreen.storyboard */,
 				92016D3524841BC000A79E06 /* Info.plist */,
@@ -212,8 +224,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				92016D2A24841BBE00A79E06 /* TrackYourGoals.xcdatamodeld in Sources */,
+				92016D522486CBFB00A79E06 /* AddTaskView.swift in Sources */,
 				92016D2524841BBE00A79E06 /* AppDelegate.swift in Sources */,
+				92016D4C2486B97300A79E06 /* Task.swift in Sources */,
+				92016D502486C37200A79E06 /* ViewRouter.swift in Sources */,
 				92016D2C24841BBE00A79E06 /* ContentView.swift in Sources */,
+				92016D5424870ED200A79E06 /* CustomTabViewItem.swift in Sources */,
 				92016D2724841BBE00A79E06 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
