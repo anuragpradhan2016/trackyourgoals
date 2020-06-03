@@ -31,7 +31,6 @@ struct AddTaskView: View {
                             Text(self.frequencies[$0]).tag($0)
                         }
                     }
-                    
                 }
                 
                 

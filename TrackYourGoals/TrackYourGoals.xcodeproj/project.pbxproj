@@ -19,6 +19,7 @@
 		92016D502486C37200A79E06 /* ViewRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92016D4F2486C37200A79E06 /* ViewRouter.swift */; };
 		92016D522486CBFB00A79E06 /* AddTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92016D512486CBFB00A79E06 /* AddTaskView.swift */; };
 		92016D5424870ED200A79E06 /* CustomTabViewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92016D5324870ED200A79E06 /* CustomTabViewItem.swift */; };
+		92016D5624881CB300A79E06 /* EditTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92016D5524881CB300A79E06 /* EditTaskView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,6 +49,7 @@
 		92016D4F2486C37200A79E06 /* ViewRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewRouter.swift; sourceTree = "<group>"; };
 		92016D512486CBFB00A79E06 /* AddTaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTaskView.swift; sourceTree = "<group>"; };
 		92016D5324870ED200A79E06 /* CustomTabViewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTabViewItem.swift; sourceTree = "<group>"; };
+		92016D5524881CB300A79E06 /* EditTaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditTaskView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,6 +96,7 @@
 				92016D2B24841BBE00A79E06 /* ContentView.swift */,
 				92016D4B2486B97300A79E06 /* Task.swift */,
 				92016D512486CBFB00A79E06 /* AddTaskView.swift */,
+				92016D5524881CB300A79E06 /* EditTaskView.swift */,
 				92016D5324870ED200A79E06 /* CustomTabViewItem.swift */,
 				92016D4F2486C37200A79E06 /* ViewRouter.swift */,
 				92016D2D24841BC000A79E06 /* Assets.xcassets */,
@@ -223,6 +226,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				92016D5624881CB300A79E06 /* EditTaskView.swift in Sources */,
 				92016D2A24841BBE00A79E06 /* TrackYourGoals.xcdatamodeld in Sources */,
 				92016D522486CBFB00A79E06 /* AddTaskView.swift in Sources */,
 				92016D2524841BBE00A79E06 /* AppDelegate.swift in Sources */,

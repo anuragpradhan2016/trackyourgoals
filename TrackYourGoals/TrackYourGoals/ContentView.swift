@@ -17,7 +17,10 @@ struct ContentView: View {
     @State var task_title = ""
     @State var task_frequency = 0
     @State var task_notification = false
+    @State var todaysTaskCompleted = false
     @State var addTaskCompleted = false
+    
+    @State var taskSwipe = CGSize.zero
     
     @State var tasksDueToday: [Task] = []
     @State var upcomingTasks: [Task] = []
@@ -28,15 +31,29 @@ struct ContentView: View {
             VStack {
                 Spacer()
                 if self.viewRouter.currentView == "todaysGoals" {
-                    
-                    
                     NavigationView {
                         List {
                             Section(header: Text("Incomplete Tasks")){
                                 ForEach(self.tasksDueToday){
                                     task in
                                     if !task.task_completed {
-                                        Text(task.task_title)
+                                        NavigationLink(destination: EditTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, task: task, onSave: {
+                                            self.viewRouter.currentView = "todaysGoals"
+                                        })
+                                        ){
+                                            
+                                            Text(task.task_title)
+                                                .onTapGesture(count: 2) {
+                                                    print(self.todaysTaskCompleted)
+                                                    self.managedObjectContext.performAndWait {
+                                                        task.task_completed = true
+                                                    }
+                                                    try? self.managedObjectContext.save()
+                                                    
+                                                    self.viewRouter.currentView = "todaysGoals"
+                                            }
+                                        }
+                                        
                                     }
                                 }
                             }
@@ -129,6 +146,8 @@ struct ContentView: View {
                 }
             }.edgesIgnoringSafeArea(.bottom)
         }.onAppear() {
+            self.todaysTaskCompleted = false
+            
             for i in 0..<self.tasks.count {
                 let task = self.tasks[i]
                 if task.task_frequency == 1 {
