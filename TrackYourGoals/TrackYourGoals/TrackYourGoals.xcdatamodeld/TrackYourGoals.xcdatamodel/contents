@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="15702" systemVersion="19B88" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="16119" systemVersion="19F101" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="Task" representedClassName=".Task" syncable="YES">
         <attribute name="task_completed" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="task_createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="task_dueDate" optional="YES" attributeType="Date" usesScalarValueType="YES"/>
         <attribute name="task_frequency" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="task_notification" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="task_title" optional="YES" attributeType="String"/>
     </entity>
     <elements>
-        <element name="Task" positionX="-63" positionY="-18" width="128" height="118"/>
+        <element name="Task" positionX="-63" positionY="-18" width="128" height="133"/>
     </elements>
 </model>

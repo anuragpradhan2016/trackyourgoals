@@ -18,6 +18,7 @@ struct ContentView: View {
     @State var task_frequency = 0
     @State var task_notification = false
     @State var addTaskCompleted = false
+    @State var dueDate = Date()
     
     @State var tasksDueToday: [Task] = []
     @State var upcomingTasks: [Task] = []
@@ -57,6 +58,24 @@ struct ContentView: View {
                     
                 } else if self.viewRouter.currentView == "upcomingGoals" {
                     
+                    NavigationView {
+                        List {
+                            ForEach(self.upcomingTasks
+                                // one time goals should always have due dates
+                                .filter({$0.task_dueDate != nil && !$0.task_completed})
+                                .sorted(by: {$0.task_dueDate! < $1.task_dueDate!})){
+                                    task in
+                                    HStack() {
+                                        Text(task.task_title)
+                                            .frame(width: geometry.size.height/6, alignment: .leading)
+                                        Text(self.getFormatter(date: task.task_dueDate!))
+                                            .offset(x: geometry.size.height/6)
+                                    }
+                            }
+                        }
+                        .navigationBarTitle("Upcoming Goals")
+                    }
+                    
                 } else if self.viewRouter.currentView == "history" {
                     
                 } else if self.viewRouter.currentView == "settings" {
@@ -78,6 +97,7 @@ struct ContentView: View {
                                 self.task_frequency = 0
                                 self.task_notification = false
                                 self.addTaskCompleted = false
+                                self.dueDate = Date()
                             }) {
                                 Image(systemName: "plus.circle.fill")
                                     .resizable()
@@ -87,7 +107,8 @@ struct ContentView: View {
                             }.sheet(isPresented: self.$modalDisplayed) {
                                 AddTaskView(title: self.$task_title, frequency: self.$task_frequency,
                                             notificationsOn: self.$task_notification,
-                                            taskSubmitted: self.$addTaskCompleted, modalDisplayed: self.$modalDisplayed, onSubmit: {
+                                            taskSubmitted: self.$addTaskCompleted, modalDisplayed: self.$modalDisplayed,
+                                            dueDate: self.$dueDate, onSubmit: {
                                                 if (self.addTaskCompleted){
                                                     
                                                     let task = Task(context: self.managedObjectContext)
@@ -97,6 +118,7 @@ struct ContentView: View {
                                                     task.task_notification = self.task_notification
                                                     task.task_completed = false
                                                     task.task_createdAt = Date()
+                                                    task.task_dueDate = self.dueDate
                                                     
                                                     do {
                                                         try self.managedObjectContext.save()
@@ -106,7 +128,7 @@ struct ContentView: View {
                                                     }
                                                     
                                                     if task.task_frequency == 0 {
-                                                        
+                                                        self.upcomingTasks.append(task)
                                                     } else if task.task_frequency == 1 {
                                                         self.tasksDueToday.append(task)
                                                     } else {
@@ -136,10 +158,16 @@ struct ContentView: View {
                 } else if task.task_frequency == 2 {
                     
                 } else {
-                    
+                    self.upcomingTasks.append(task)
                 }
             }
         }
+    }
+    
+    func getFormatter(date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        return formatter.string(for: date)!
     }
 }
 

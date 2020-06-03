@@ -17,6 +17,8 @@ struct AddTaskView: View {
     @Binding var notificationsOn: Bool
     @Binding var taskSubmitted: Bool
     @Binding var modalDisplayed: Bool
+    @Binding var dueDate: Date
+
     var onSubmit: () -> ()
     
     var frequencies = ["Never", "Daily", "Weekly"]
@@ -32,6 +34,12 @@ struct AddTaskView: View {
                         }
                     }
                     
+                    if (frequency == 0) {
+                        DatePicker(selection: $dueDate, in: Date()..., displayedComponents: .date) {
+                            Text("Select due date")
+                        }
+                    }
+
                 }
                 
                 
