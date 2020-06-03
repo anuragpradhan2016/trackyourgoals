@@ -10,6 +10,7 @@ import Foundation
 import CoreData
 
 public class Task:NSManagedObject, Identifiable {
+    @NSManaged public var task_dueDate:Date?
     @NSManaged public var task_createdAt:Date
     @NSManaged public var task_title:String
     @NSManaged public var task_frequency:Int // 0 -> Never, 1 -> Daily, 2 -> Weekly
