@@ -104,9 +104,16 @@ struct ContentView: View {
                                     ){
                                         HStack() {
                                             Text(task.task_title)
-                                                .frame(width: geometry.size.height/6, alignment: .leading)
+                                                .frame(width: geometry.size.height/5, alignment: .leading)
                                             Text(self.getFormatter(date: task.task_dueDate!))
-                                                .offset(x: geometry.size.height/6)
+                                                .frame(width: geometry.size.height/5, alignment: .trailing)
+                                        }.onTapGesture(count: 2) {
+                                                self.managedObjectContext.performAndWait {
+                                                    task.task_completed = true
+                                                }
+                                                try? self.managedObjectContext.save()
+                                                
+                                                self.viewRouter.currentView = "upcomingGoals"
                                         }
                                     }
                             }
