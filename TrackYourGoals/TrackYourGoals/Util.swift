@@ -26,4 +26,10 @@ class Util {
             return Util.days[t.task_dayOfWeek] == dayInWeek
         }
     }
+    
+    static func dateToString(date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        return formatter.string(for: date)!
+    }
 }

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		130883DD24899F4400B609F1 /* ViewTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 130883DC24899F4400B609F1 /* ViewTaskView.swift */; };
 		92016D2524841BBE00A79E06 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92016D2424841BBE00A79E06 /* AppDelegate.swift */; };
 		92016D2724841BBE00A79E06 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92016D2624841BBE00A79E06 /* SceneDelegate.swift */; };
 		92016D2A24841BBE00A79E06 /* TrackYourGoals.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 92016D2824841BBE00A79E06 /* TrackYourGoals.xcdatamodeld */; };
@@ -34,6 +35,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		130883DC24899F4400B609F1 /* ViewTaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewTaskView.swift; sourceTree = "<group>"; };
 		92016D2124841BBE00A79E06 /* TrackYourGoals.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrackYourGoals.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		92016D2424841BBE00A79E06 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		92016D2624841BBE00A79E06 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -99,6 +101,7 @@
 				92016D4B2486B97300A79E06 /* Task.swift */,
 				92016D512486CBFB00A79E06 /* AddTaskView.swift */,
 				92016D5524881CB300A79E06 /* EditTaskView.swift */,
+				130883DC24899F4400B609F1 /* ViewTaskView.swift */,
 				92016D5324870ED200A79E06 /* CustomTabViewItem.swift */,
 				92016D4F2486C37200A79E06 /* ViewRouter.swift */,
 				92016D5724886FEA00A79E06 /* Util.swift */,
@@ -236,6 +239,7 @@
 				92016D4C2486B97300A79E06 /* Task.swift in Sources */,
 				92016D502486C37200A79E06 /* ViewRouter.swift in Sources */,
 				92016D2C24841BBE00A79E06 /* ContentView.swift in Sources */,
+				130883DD24899F4400B609F1 /* ViewTaskView.swift in Sources */,
 				92016D5824886FEA00A79E06 /* Util.swift in Sources */,
 				92016D5424870ED200A79E06 /* CustomTabViewItem.swift in Sources */,
 				92016D2724841BBE00A79E06 /* SceneDelegate.swift in Sources */,

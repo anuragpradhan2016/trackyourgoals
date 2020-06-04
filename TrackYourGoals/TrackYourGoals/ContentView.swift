@@ -88,7 +88,7 @@ struct ContentView: View {
                                             HStack() {
                                                 Text(task.task_title)
                                                     .frame(width: geometry.size.height/5, alignment: .leading)
-                                                Text(self.getFormatter(date: task.task_dueDate!))
+                                                Text(Util.dateToString(date: task.task_dueDate!))
                                                     .frame(width: geometry.size.height/5, alignment: .trailing)
                                             }.onTapGesture(count: 2) {
                                                 self.managedObjectContext.performAndWait {
@@ -103,10 +103,13 @@ struct ContentView: View {
                             }
                             
                             Section(header: Text("Completed Tasks")){
-                                ForEach(self.tasksDueToday + self.upcomingTasks){
+                                ForEach(self.getSortedCompletedTasks()){
                                     task in
-                                    if  (!task.task_completed.isEmpty && Calendar.current.compare(Date(), to: task.task_completed.last!, toGranularity: .day).rawValue == 0) && (task.task_deletedAt == nil || Calendar.current.compare(Date(), to: task.task_deletedAt!, toGranularity: .day).rawValue < 0) {
-                                        Text(task.task_title)
+                                    if  (task.task_deletedAt == nil || Calendar.current.compare(Date(), to: task.task_deletedAt!, toGranularity: .day).rawValue < 0) {
+                                        NavigationLink(destination: ViewTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Date(), dayOfWeek: task.task_dayOfWeek, onSave: {})
+                                        ){
+                                            Text(task.task_title)
+                                        }
                                     }
                                 }
                             }
@@ -219,19 +222,20 @@ struct ContentView: View {
             }
         }
     }
-    
-    func getFormatter(date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        return formatter.string(for: date)!
-    }
-    
+        
     func deleteDailyTask(with indexSet: IndexSet){
         self.managedObjectContext.performAndWait {
             self.tasksDueToday[indexSet.first!].task_deletedAt = Date()
         }
         try? self.managedObjectContext.save()
         self.tasksDueToday.remove(at: indexSet.first!)
+    }
+    
+    func getSortedCompletedTasks() -> [Task] {
+        let completedUpcoming = upcomingTasks.filter{!$0.task_completed.isEmpty}
+        let completedDueToday = tasksDueToday.filter{!$0.task_completed.isEmpty && Calendar.current.compare(Date(), to: $0.task_completed.last!, toGranularity: .day).rawValue == 0}
+        let allCompletedTasks = completedDueToday + completedUpcoming
+        return allCompletedTasks.sorted(by: {$0.task_completed.last! > $1.task_completed.last!})
     }
 }
 
