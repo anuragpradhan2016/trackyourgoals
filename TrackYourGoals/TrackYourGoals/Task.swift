@@ -17,6 +17,7 @@ public class Task:NSManagedObject, Identifiable {
     @NSManaged public var task_dayOfWeek:Int // 0 -> Sunday, 1 -> Monday ... 6 -> Saturday 
     @NSManaged public var task_notification:Bool
     @NSManaged public var task_completed:Bool
+    @NSManaged public var task_deletedAt:Date?
 }
 
 extension Task {

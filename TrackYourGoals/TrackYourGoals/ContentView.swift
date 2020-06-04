@@ -39,17 +39,16 @@ struct ContentView: View {
                             Section(header: Text("Incomplete Tasks")){
                                 ForEach(self.tasksDueToday){
                                     task in
-                                    if !task.task_completed {
+                                    if !task.task_completed && (task.task_deletedAt == nil || Calendar.current.compare(Date(), to: task.task_deletedAt!, toGranularity: .day).rawValue < 0) {
                                         NavigationLink(destination: EditTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Date(), dayOfWeek: task.task_dayOfWeek, task: task,
                                                                                  originalStateDueToday: Util.isTaskDueToday(t: task), editTaskAction: self.$editTaskUpdateAction, onSave: {
                                                                                     if (self.editTaskUpdateAction == 1) {
                                                                                         self.tasksDueToday.remove(at: self.tasksDueToday.firstIndex(of: task)!)
                                                                                     } else if (self.editTaskUpdateAction == 2) {
                                                                                         self.tasksDueToday.append(task)
-                                                    
-                                                                                        }
+                                                                                    }
                                                                                     self.editTaskUpdateAction = 0
-                                            self.viewRouter.currentView = "todaysGoals"
+                                                                                    self.viewRouter.currentView = "todaysGoals"
                                         })
                                         ){
                                             
@@ -66,12 +65,13 @@ struct ContentView: View {
                                         
                                     }
                                 }
+                                .onDelete(perform: self.deleteDailyTask)
                             }
                             
                             Section(header: Text("Completed Tasks")){
                                 ForEach(self.tasksDueToday){
                                     task in
-                                    if task.task_completed {
+                                    if task.task_completed && (task.task_deletedAt == nil || Calendar.current.compare(Date(), to: task.task_deletedAt!, toGranularity: .day).rawValue < 0) {
                                         Text(task.task_title)
                                     }
                                 }
@@ -203,7 +203,17 @@ struct ContentView: View {
         formatter.dateStyle = .medium
         return formatter.string(for: date)!
     }
+    
+    func deleteDailyTask(with indexSet: IndexSet){
+        self.managedObjectContext.performAndWait {
+            self.tasksDueToday[indexSet.first!].task_deletedAt = Date()
+        }
+        try? self.managedObjectContext.save()
+        self.tasksDueToday.remove(at: indexSet.first!)
+    }
 }
+
+
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
