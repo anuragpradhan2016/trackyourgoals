@@ -36,7 +36,7 @@ struct ContentView: View {
                 if self.viewRouter.currentView == "todaysGoals" {
                     NavigationView {
                         List {
-                            Section(header: Text("Incomplete Tasks")){
+                            Section(header: Text("Today's Tasks")){
                                 ForEach(self.tasksDueToday){
                                     task in
                                     if !task.task_completed && (task.task_deletedAt == nil || Calendar.current.compare(Date(), to: task.task_deletedAt!, toGranularity: .day).rawValue < 0) {
@@ -69,10 +69,43 @@ struct ContentView: View {
                                 .onDelete(perform: self.deleteDailyTask)
                             }
                             
+                            Section(header: Text("Upcoming Tasks")){
+                                ForEach(self.upcomingTasks
+                                    // one time goals should always have due dates
+                                    .filter({$0.task_dueDate != nil && !$0.task_completed})
+                                    .sorted(by: {$0.task_dueDate! < $1.task_dueDate!})){
+                                        task in
+                                        NavigationLink(destination: EditTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Date(), dayOfWeek: task.task_dayOfWeek, task: task,
+                                                                                 originalStateDueToday: Util.isTaskDueToday(t: task), editTaskAction: self.$editTaskUpdateAction, onSave: {
+                                                                                    if (self.editTaskUpdateAction == 2) {
+                                                                                        self.upcomingTasks.remove(at: self.upcomingTasks.firstIndex(of: task)!)
+                                                                                        self.tasksDueToday.append(task)
+                                                                                    }
+                                                                                    self.editTaskUpdateAction = 0
+                                                                                    self.viewRouter.currentView = "todaysGoals"
+                                        })
+                                        ){
+                                            HStack() {
+                                                Text(task.task_title)
+                                                    .frame(width: geometry.size.height/5, alignment: .leading)
+                                                Text(self.getFormatter(date: task.task_dueDate!))
+                                                    .frame(width: geometry.size.height/5, alignment: .trailing)
+                                            }.onTapGesture(count: 2) {
+                                                self.managedObjectContext.performAndWait {
+                                                    task.task_completed = true
+                                                }
+                                                try? self.managedObjectContext.save()
+                                                
+                                                self.viewRouter.currentView = "todaysGoals"
+                                            }
+                                        }
+                                }
+                            }
+                            
                             Section(header: Text("Completed Tasks")){
-                                ForEach(self.tasksDueToday){
+                                ForEach((self.tasksDueToday + self.upcomingTasks).filter({$0.task_completed})){
                                     task in
-                                    if task.task_completed && (task.task_deletedAt == nil || Calendar.current.compare(Date(), to: task.task_deletedAt!, toGranularity: .day).rawValue < 0) {
+                                    if (task.task_deletedAt == nil || Calendar.current.compare(Date(), to: task.task_deletedAt!, toGranularity: .day).rawValue < 0) {
                                         Text(task.task_title)
                                     }
                                 }
@@ -81,45 +114,7 @@ struct ContentView: View {
                         .navigationBarTitle("Today's Goals")
                     }
                     
-                    
-                    
                 } else if self.viewRouter.currentView == "upcomingGoals" {
-                    
-                    NavigationView {
-                        List {
-                            ForEach(self.upcomingTasks
-                                // one time goals should always have due dates
-                                .filter({$0.task_dueDate != nil && !$0.task_completed})
-                                .sorted(by: {$0.task_dueDate! < $1.task_dueDate!})){
-                                    task in
-                                    NavigationLink(destination: EditTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Date(), dayOfWeek: task.task_dayOfWeek, task: task,
-                                                                             originalStateDueToday: Util.isTaskDueToday(t: task), editTaskAction: self.$editTaskUpdateAction, onSave: {
-                                                                                if (self.editTaskUpdateAction == 2) {
-                                                                                    self.upcomingTasks.remove(at: self.upcomingTasks.firstIndex(of: task)!)
-                                                                                    self.tasksDueToday.append(task)
-                                                                                }
-                                                                                self.editTaskUpdateAction = 0
-                                                                                self.viewRouter.currentView = "upcomingGoals"
-                                    })
-                                    ){
-                                        HStack() {
-                                            Text(task.task_title)
-                                                .frame(width: geometry.size.height/5, alignment: .leading)
-                                            Text(self.getFormatter(date: task.task_dueDate!))
-                                                .frame(width: geometry.size.height/5, alignment: .trailing)
-                                        }.onTapGesture(count: 2) {
-                                                self.managedObjectContext.performAndWait {
-                                                    task.task_completed = true
-                                                }
-                                                try? self.managedObjectContext.save()
-                                                
-                                                self.viewRouter.currentView = "upcomingGoals"
-                                        }
-                                    }
-                            }
-                        }
-                        .navigationBarTitle("Upcoming Goals")
-                    }
                     
                 } else if self.viewRouter.currentView == "history" {
                     
