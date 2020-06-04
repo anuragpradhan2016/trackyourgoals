@@ -14,6 +14,7 @@ public class Task:NSManagedObject, Identifiable {
     @NSManaged public var task_createdAt:Date
     @NSManaged public var task_title:String
     @NSManaged public var task_frequency:Int // 0 -> Never, 1 -> Daily, 2 -> Weekly
+    @NSManaged public var task_dayOfWeek:Int // 0 -> Sunday, 1 -> Monday ... 6 -> Saturday 
     @NSManaged public var task_notification:Bool
     @NSManaged public var task_completed:Bool
 }

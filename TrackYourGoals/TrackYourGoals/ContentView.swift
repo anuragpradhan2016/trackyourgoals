@@ -20,12 +20,14 @@ struct ContentView: View {
     @State var todaysTaskCompleted = false
     @State var addTaskCompleted = false
     @State var dueDate = Date()
+    @State var dayOfWeek = 0
     
     @State var taskSwipe = CGSize.zero
-    
+    @State var editTaskUpdateAction: Int = 0 // 0-> nothing, 1 -> delete from daily, 2 -> add to daily
     @State var tasksDueToday: [Task] = []
     @State var upcomingTasks: [Task] = []
     
+    var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
     
     var body: some View {
         GeometryReader { geometry in
@@ -38,14 +40,21 @@ struct ContentView: View {
                                 ForEach(self.tasksDueToday){
                                     task in
                                     if !task.task_completed {
-                                        NavigationLink(destination: EditTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, task: task, onSave: {
+                                        NavigationLink(destination: EditTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Date(), dayOfWeek: task.task_dayOfWeek, task: task,
+                                                                                 originalStateDueToday: Util.isTaskDueToday(t: task), editTaskAction: self.$editTaskUpdateAction, onSave: {
+                                                                                    if (self.editTaskUpdateAction == 1) {
+                                                                                        self.tasksDueToday.remove(at: self.tasksDueToday.firstIndex(of: task)!)
+                                                                                    } else if (self.editTaskUpdateAction == 2) {
+                                                                                        self.tasksDueToday.append(task)
+                                                    
+                                                                                        }
+                                                                                    self.editTaskUpdateAction = 0
                                             self.viewRouter.currentView = "todaysGoals"
                                         })
                                         ){
                                             
                                             Text(task.task_title)
                                                 .onTapGesture(count: 2) {
-                                                    print(self.todaysTaskCompleted)
                                                     self.managedObjectContext.performAndWait {
                                                         task.task_completed = true
                                                     }
@@ -125,7 +134,7 @@ struct ContentView: View {
                                 AddTaskView(title: self.$task_title, frequency: self.$task_frequency,
                                             notificationsOn: self.$task_notification,
                                             taskSubmitted: self.$addTaskCompleted, modalDisplayed: self.$modalDisplayed,
-                                            dueDate: self.$dueDate, onSubmit: {
+                                            dueDate: self.$dueDate, dayOfWeek: self.$dayOfWeek, onSubmit: {
                                                 if (self.addTaskCompleted){
                                                     
                                                     let task = Task(context: self.managedObjectContext)
@@ -136,6 +145,7 @@ struct ContentView: View {
                                                     task.task_completed = false
                                                     task.task_createdAt = Date()
                                                     task.task_dueDate = self.dueDate
+                                                    task.task_dayOfWeek = self.dayOfWeek
                                                     
                                                     do {
                                                         try self.managedObjectContext.save()
@@ -149,7 +159,9 @@ struct ContentView: View {
                                                     } else if task.task_frequency == 1 {
                                                         self.tasksDueToday.append(task)
                                                     } else {
-                                                        
+                                                        if Util.isTaskDueToday(t: task){
+                                                            self.tasksDueToday.append(task)
+                                                        }
                                                     }
                                                 }
                                 })
@@ -172,10 +184,13 @@ struct ContentView: View {
             
             for i in 0..<self.tasks.count {
                 let task = self.tasks[i]
+                
                 if task.task_frequency == 1 {
                     self.tasksDueToday.append(task)
                 } else if task.task_frequency == 2 {
-                    
+                    if Util.isTaskDueToday(t: task){
+                        self.tasksDueToday.append(task)
+                    }
                 } else {
                     self.upcomingTasks.append(task)
                 }
