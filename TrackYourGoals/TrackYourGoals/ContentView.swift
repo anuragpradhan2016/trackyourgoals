@@ -39,7 +39,7 @@ struct ContentView: View {
                             Section(header: Text("Today's Tasks")){
                                 ForEach(self.tasksDueToday){
                                     task in
-                                    if !task.task_completed && (task.task_deletedAt == nil || Calendar.current.compare(Date(), to: task.task_deletedAt!, toGranularity: .day).rawValue < 0) {
+                                    if (task.task_completed.isEmpty || Calendar.current.compare(Date(), to: task.task_completed.last!, toGranularity: .day).rawValue != 0) && (task.task_deletedAt == nil || Calendar.current.compare(Date(), to: task.task_deletedAt!, toGranularity: .day).rawValue < 0) {
                                         NavigationLink(destination: EditTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Date(), dayOfWeek: task.task_dayOfWeek, task: task,
                                                                                  originalStateDueToday: Util.isTaskDueToday(t: task), editTaskAction: self.$editTaskUpdateAction, onSave: {
                                                                                     if (self.editTaskUpdateAction == 1) {
@@ -56,7 +56,7 @@ struct ContentView: View {
                                             Text(task.task_title)
                                                 .onTapGesture(count: 2) {
                                                     self.managedObjectContext.performAndWait {
-                                                        task.task_completed = true
+                                                        task.task_completed.append(Date())
                                                     }
                                                     try? self.managedObjectContext.save()
                                                     
@@ -72,7 +72,7 @@ struct ContentView: View {
                             Section(header: Text("Upcoming Tasks")){
                                 ForEach(self.upcomingTasks
                                     // one time goals should always have due dates
-                                    .filter({$0.task_dueDate != nil && !$0.task_completed})
+                                    .filter({$0.task_dueDate != nil && $0.task_completed.isEmpty})
                                     .sorted(by: {$0.task_dueDate! < $1.task_dueDate!})){
                                         task in
                                         NavigationLink(destination: EditTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Date(), dayOfWeek: task.task_dayOfWeek, task: task,
@@ -92,7 +92,7 @@ struct ContentView: View {
                                                     .frame(width: geometry.size.height/5, alignment: .trailing)
                                             }.onTapGesture(count: 2) {
                                                 self.managedObjectContext.performAndWait {
-                                                    task.task_completed = true
+                                                    task.task_completed.append(Date())
                                                 }
                                                 try? self.managedObjectContext.save()
                                                 
@@ -103,9 +103,9 @@ struct ContentView: View {
                             }
                             
                             Section(header: Text("Completed Tasks")){
-                                ForEach((self.tasksDueToday + self.upcomingTasks).filter({$0.task_completed})){
+                                ForEach(self.tasksDueToday + self.upcomingTasks){
                                     task in
-                                    if (task.task_deletedAt == nil || Calendar.current.compare(Date(), to: task.task_deletedAt!, toGranularity: .day).rawValue < 0) {
+                                    if  (!task.task_completed.isEmpty && Calendar.current.compare(Date(), to: task.task_completed.last!, toGranularity: .day).rawValue == 0) && (task.task_deletedAt == nil || Calendar.current.compare(Date(), to: task.task_deletedAt!, toGranularity: .day).rawValue < 0) {
                                         Text(task.task_title)
                                     }
                                 }
@@ -156,10 +156,10 @@ struct ContentView: View {
                                                     task.task_title = self.task_title
                                                     task.task_frequency = self.task_frequency
                                                     task.task_notification = self.task_notification
-                                                    task.task_completed = false
                                                     task.task_createdAt = Date()
                                                     task.task_dueDate = self.dueDate
                                                     task.task_dayOfWeek = self.dayOfWeek
+                                                    task.task_completed = []
                                                     
                                                     do {
                                                         try self.managedObjectContext.save()
