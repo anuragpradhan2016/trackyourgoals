@@ -13,7 +13,7 @@ class Util {
     
     static func isTaskDueToday(t: Task) -> Bool {
         if t.task_frequency == 0 {
-            return Date().compare(t.task_dueDate!).rawValue == 0
+            return Calendar.current.compare(Date(), to: t.task_dueDate!, toGranularity: .day).rawValue == 0
         } else if t.task_frequency == 1 {
             return true
         } else {

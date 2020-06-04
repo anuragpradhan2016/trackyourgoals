@@ -44,6 +44,7 @@ struct ContentView: View {
                                                                                  originalStateDueToday: Util.isTaskDueToday(t: task), editTaskAction: self.$editTaskUpdateAction, onSave: {
                                                                                     if (self.editTaskUpdateAction == 1) {
                                                                                         self.tasksDueToday.remove(at: self.tasksDueToday.firstIndex(of: task)!)
+                                                                                        self.upcomingTasks.append(task)
                                                                                     } else if (self.editTaskUpdateAction == 2) {
                                                                                         self.tasksDueToday.append(task)
                                                                                     }
@@ -91,11 +92,22 @@ struct ContentView: View {
                                 .filter({$0.task_dueDate != nil && !$0.task_completed})
                                 .sorted(by: {$0.task_dueDate! < $1.task_dueDate!})){
                                     task in
-                                    HStack() {
-                                        Text(task.task_title)
-                                            .frame(width: geometry.size.height/6, alignment: .leading)
-                                        Text(self.getFormatter(date: task.task_dueDate!))
-                                            .offset(x: geometry.size.height/6)
+                                    NavigationLink(destination: EditTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Date(), dayOfWeek: task.task_dayOfWeek, task: task,
+                                                                             originalStateDueToday: Util.isTaskDueToday(t: task), editTaskAction: self.$editTaskUpdateAction, onSave: {
+                                                                                if (self.editTaskUpdateAction == 2) {
+                                                                                    self.upcomingTasks.remove(at: self.upcomingTasks.firstIndex(of: task)!)
+                                                                                    self.tasksDueToday.append(task)
+                                                                                }
+                                                                                self.editTaskUpdateAction = 0
+                                                                                self.viewRouter.currentView = "upcomingGoals"
+                                    })
+                                    ){
+                                        HStack() {
+                                            Text(task.task_title)
+                                                .frame(width: geometry.size.height/6, alignment: .leading)
+                                            Text(self.getFormatter(date: task.task_dueDate!))
+                                                .offset(x: geometry.size.height/6)
+                                        }
                                     }
                             }
                         }
@@ -155,7 +167,11 @@ struct ContentView: View {
                                                     }
                                                     
                                                     if task.task_frequency == 0 {
-                                                        self.upcomingTasks.append(task)
+                                                        if (Util.isTaskDueToday(t: task)) {
+                                                            self.tasksDueToday.append(task)
+                                                        } else {
+                                                            self.upcomingTasks.append(task)
+                                                        }
                                                     } else if task.task_frequency == 1 {
                                                         self.tasksDueToday.append(task)
                                                     } else {
@@ -192,7 +208,11 @@ struct ContentView: View {
                         self.tasksDueToday.append(task)
                     }
                 } else {
-                    self.upcomingTasks.append(task)
+                    if (Util.isTaskDueToday(t: task)) {
+                        self.tasksDueToday.append(task)
+                    } else {
+                        self.upcomingTasks.append(task)
+                    }
                 }
             }
         }
