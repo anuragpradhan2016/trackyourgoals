@@ -17,7 +17,6 @@ struct ContentView: View {
     @State var task_title = ""
     @State var task_frequency = 0
     @State var task_notification = false
-    @State var todaysTaskCompleted = false
     @State var addTaskCompleted = false
     @State var dueDate = Util.localDate(date: Date())
     @State var dayOfWeek = 0
@@ -122,23 +121,23 @@ struct ContentView: View {
                         List {
                             ForEach(self.history.sorted(by: {Calendar.current.compare(Util.stringToDate(date: $0.key), to: Util.stringToDate(date: $1.key), toGranularity: .day).rawValue > 0}), id: \.key) { key, value in
                                 NavigationLink(destination: HistoryDayView(date: key, tasks: value)) {
-                                Text("\(key): Completed \(self.howManyTasksCompleted(date: key)) out of \(value.count) tasks")
-                                    .foregroundColor(self.howManyTasksCompleted(date: key) == value.count ? .green : .red)
+                                    Text("\(key): Completed \(self.howManyTasksCompleted(date: key)) out of \(value.count) tasks")
+                                        .foregroundColor(self.howManyTasksCompleted(date: key) == value.count ? .green : .red)
                                 }
                             }
                         }
-                          .navigationBarTitle(Text("History"))
+                        .navigationBarTitle(Text("History"))
                     }
-                  
+                    
                     
                 }
-                    
+                
                 
                 Spacer()
                 ZStack {
                     HStack {
                         CustomTabViewItem(name: "house", width: geometry.size.width/3, foregroundColor: self.viewRouter.currentView == "todaysGoals" ? .black : .gray, onTapGesture: {self.viewRouter.currentView = "todaysGoals"})
-                
+                        
                         ZStack {
                             Button(action: {
                                 self.modalDisplayed = true
@@ -206,8 +205,7 @@ struct ContentView: View {
                 }
             }.edgesIgnoringSafeArea(.bottom)
         }.onAppear() {
-            self.todaysTaskCompleted = false
-            
+            print(Util.localDate(date: Date()))
             // get previous days date
             let yesterday = Util.getPreviousDay(date: Util.localDate(date: Date()))
             var date = yesterday
@@ -237,6 +235,7 @@ struct ContentView: View {
                     }
                     
                 } else if task.task_frequency == 2 {
+                    print(Util.isTaskDueToday(t: task))
                     if Util.isTaskDueToday(t: task){
                         self.tasksDueToday.append(task)
                     }
@@ -244,10 +243,14 @@ struct ContentView: View {
                     let date = task.task_createdAt
                     var lastDate = task.task_deletedAt ?? yesterday
                     
-                    while(Calendar.current.compare(date, to: lastDate, toGranularity: .day).rawValue <= 0) {
+                    while(Calendar.current.compare(lastDate, to: date, toGranularity: .day).rawValue >= 0) {
+                        let date = Util.localDate(date: lastDate)
                         let dateFormatter = DateFormatter()
-                        dateFormatter.dateFormat = "MMMM d, yyyy"
-                        let dayInWeek = dateFormatter.string(from: lastDate)
+                        
+                        dateFormatter.dateFormat = "EEEE"
+                        dateFormatter.timeZone = .current
+                        
+                        let dayInWeek = dateFormatter.string(from: date).capitalized
                         
                         if Util.days[task.task_dayOfWeek] == dayInWeek {
                             self.history[Util.dateToString(date: lastDate)]!.append(task)
@@ -259,7 +262,7 @@ struct ContentView: View {
                 } else {
                     if (Util.isTaskDueToday(t: task)) {
                         self.tasksDueToday.append(task)
-                    } else {
+                    } else if Calendar.current.compare(Util.localDate(date: Date()), to: task.task_dueDate!, toGranularity: .day).rawValue < 0 {
                         self.upcomingTasks.append(task)
                     }
                     

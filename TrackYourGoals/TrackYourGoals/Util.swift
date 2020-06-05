@@ -13,15 +13,15 @@ class Util {
     
     static func isTaskDueToday(t: Task) -> Bool {
         if t.task_frequency == 0 {
-            return Calendar.current.compare(Date(), to: t.task_dueDate!, toGranularity: .day).rawValue == 0
+            return Calendar.current.compare(Util.localDate(date: Date()), to: t.task_dueDate!, toGranularity: .day).rawValue == 0
         } else if t.task_frequency == 1 {
             return true
         } else {
-            let date = Date()
+            let date = Util.localDate(date: Date())
             let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "MMMM d, yyyy"
+            dateFormatter.dateFormat = "EEEE"
             dateFormatter.timeZone = .current
-            let dayInWeek = dateFormatter.string(from: date)
+            let dayInWeek = dateFormatter.string(from: date).capitalized
             
             return Util.days[t.task_dayOfWeek] == dayInWeek
         }
