@@ -229,6 +229,9 @@ struct ContentView: View {
                     var lastDate = task.task_deletedAt ?? yesterday
                     
                     while(Calendar.current.compare(date, to: lastDate, toGranularity: .day).rawValue <= 0) {
+                        if (Calendar.current.compare(Util.localDate(date: Date()), to: lastDate, toGranularity: .day).rawValue == 0) {
+                            lastDate = Util.getPreviousDay(date: lastDate)
+                        }
                         self.history[Util.dateToString(date: lastDate)]!.append(task)
                         lastDate = Util.getPreviousDay(date: lastDate)
                     }
