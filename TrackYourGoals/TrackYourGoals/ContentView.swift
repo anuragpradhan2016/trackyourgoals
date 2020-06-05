@@ -205,7 +205,6 @@ struct ContentView: View {
                 }
             }.edgesIgnoringSafeArea(.bottom)
         }.onAppear() {
-            print(Util.localDate(date: Date()))
             // get previous days date
             let yesterday = Util.getPreviousDay(date: Util.localDate(date: Date()))
             var date = yesterday
@@ -233,9 +232,7 @@ struct ContentView: View {
                         self.history[Util.dateToString(date: lastDate)]!.append(task)
                         lastDate = Util.getPreviousDay(date: lastDate)
                     }
-                    
                 } else if task.task_frequency == 2 {
-                    print(Util.isTaskDueToday(t: task))
                     if Util.isTaskDueToday(t: task){
                         self.tasksDueToday.append(task)
                     }
