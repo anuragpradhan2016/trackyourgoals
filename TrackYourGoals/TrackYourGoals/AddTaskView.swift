@@ -62,6 +62,9 @@ struct AddTaskView: View {
                     
                     if self.notificationsOn {
                         if self.frequency == 0 {
+                            Text("\(Util.localDate(date: Date()))")
+                            Text("\(Util.getNextDay(date: self.dueDate))")
+                            
                             DatePicker("Select Reminder Date and Time: ", selection: self.$reminder, in: Util.localDate(date: Date())...Util.getPreviousMinute(date: Util.getNextDay(date: self.dueDate)), displayedComponents: [.hourAndMinute, .date])
                         } else {
                             DatePicker("Select Reminder Time: ", selection: self.$reminder, in: ...self.dueDate, displayedComponents: [.hourAndMinute])
@@ -100,8 +103,6 @@ struct AddTaskView: View {
                                         }
                                         
                                     }
-                                    
-                                    print(Util.localDate(date: self.reminder))
                                     
                                     let request = UNNotificationRequest(identifier: "reminderForGoals", content: content, trigger: trigger)
                                     UNUserNotificationCenter.current().add(request, withCompletionHandler: { error in

@@ -66,6 +66,11 @@ class Util {
     }
     
     static func localDate (date: Date) -> Date {
-        return Calendar.current.date(byAdding: .second, value: Int(Double(TimeZone.current.secondsFromGMT(for: date))), to: date)!
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
+        dateFormatter.timeZone = .current
+        let stringDate = dateFormatter.string(for: date)!
+
+        return dateFormatter.date(from: stringDate)!
     }
 }
