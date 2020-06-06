@@ -26,7 +26,7 @@ struct ContentView: View {
     @State var tasksDueToday: [Task] = []
     @State var upcomingTasks: [Task] = []
     @State var history: [String : [Task]] = [:]
-    @State var collapsed = [1, 1, 1] // i = 1 => the ith section of home is collapsed
+    @State var collapsed = [0, 1, 1] // i = 1 => the ith section of home is collapsed
     
     var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
     
@@ -59,34 +59,36 @@ struct ContentView: View {
                                         }
                                     }.frame(width: geometry.size.width / 2, alignment: .trailing).offset(x: -geometry.size.width / 20)
                                 }.frame(width: geometry.size.width)) {
-                                ForEach(self.getCollapsedList(i: 0, tasks: self.tasksDueToday.filter{($0.task_completed.isEmpty || Calendar.current.compare(Util.localDate(date: Date()), to: $0.task_completed.last!, toGranularity: .day).rawValue != 0) && ($0.task_deletedAt == nil || Calendar.current.compare(Util.localDate(date: Date()), to: $0.task_deletedAt!, toGranularity: .day).rawValue < 0)})){
-                                    task in
-                                    NavigationLink(destination: EditTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Util.localDate(date: Date()), dayOfWeek: task.task_dayOfWeek, task: task,
-                                                                             originalStateDueToday: Util.isTaskDueToday(t: task), editTaskAction: self.$editTaskUpdateAction, onSave: {
-                                                                                if (self.editTaskUpdateAction == 1) {
-                                                                                    self.tasksDueToday.remove(at: self.tasksDueToday.firstIndex(of: task)!)
-                                                                                    self.upcomingTasks.append(task)
-                                                                                } else if (self.editTaskUpdateAction == 2) {
-                                                                                    self.tasksDueToday.append(task)
-                                                                                }
-                                                                                self.editTaskUpdateAction = 0
-                                                                                self.viewRouter.currentView = "todaysGoals"
-                                    })
-                                    ){
-                                        
-                                        Text(task.task_title)
-                                            .onTapGesture(count: 2) {
-                                                self.managedObjectContext.performAndWait {
-                                                    task.task_completed.append(Util.localDate(date: Date()))
-                                                }
-                                                try? self.managedObjectContext.save()
+                                    if (self.collapsed[0] == 0) {
+                                        ForEach(self.tasksDueToday.filter{($0.task_completed.isEmpty || Calendar.current.compare(Util.localDate(date: Date()), to: $0.task_completed.last!, toGranularity: .day).rawValue != 0) && ($0.task_deletedAt == nil || Calendar.current.compare(Util.localDate(date: Date()), to: $0.task_deletedAt!, toGranularity: .day).rawValue < 0)}){
+                                            task in
+                                            NavigationLink(destination: EditTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Util.localDate(date: Date()), dayOfWeek: task.task_dayOfWeek, task: task,
+                                                                                     originalStateDueToday: Util.isTaskDueToday(t: task), editTaskAction: self.$editTaskUpdateAction, onSave: {
+                                                                                        if (self.editTaskUpdateAction == 1) {
+                                                                                            self.tasksDueToday.remove(at: self.tasksDueToday.firstIndex(of: task)!)
+                                                                                            self.upcomingTasks.append(task)
+                                                                                        } else if (self.editTaskUpdateAction == 2) {
+                                                                                            self.tasksDueToday.append(task)
+                                                                                        }
+                                                                                        self.editTaskUpdateAction = 0
+                                                                                        self.viewRouter.currentView = "todaysGoals"
+                                            })
+                                            ){
                                                 
-                                                self.viewRouter.currentView = "todaysGoals"
+                                                Text(task.task_title)
+                                                    .onTapGesture(count: 2) {
+                                                        self.managedObjectContext.performAndWait {
+                                                            task.task_completed.append(Util.localDate(date: Date()))
+                                                        }
+                                                        try? self.managedObjectContext.save()
+                                                        
+                                                        self.viewRouter.currentView = "todaysGoals"
+                                                }
+                                            }
+                                            
                                         }
+                                        .onDelete(perform: self.deleteDailyTask)
                                     }
-                                    
-                                }
-                                .onDelete(perform: self.deleteDailyTask)
                             }
                             
                             Section(header:
@@ -111,36 +113,38 @@ struct ContentView: View {
                                         }
                                     }.frame(width: geometry.size.width / 2, alignment: .trailing).offset(x: -geometry.size.width / 20)
                                 }.frame(width: geometry.size.width)){
-                                ForEach(self.getCollapsedList(i: 1, tasks: self.upcomingTasks
-                                    // one time goals should always have due dates
-                                    .filter({$0.task_dueDate != nil && $0.task_completed.isEmpty})
-                                    .sorted(by: {$0.task_dueDate! < $1.task_dueDate!}))){
-                                        task in
-                                        NavigationLink(destination: EditTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Util.localDate(date: Date()), dayOfWeek: task.task_dayOfWeek, task: task,
-                                                                                 originalStateDueToday: Util.isTaskDueToday(t: task), editTaskAction: self.$editTaskUpdateAction, onSave: {
-                                                                                    if (self.editTaskUpdateAction == 2) {
-                                                                                        self.upcomingTasks.remove(at: self.upcomingTasks.firstIndex(of: task)!)
-                                                                                        self.tasksDueToday.append(task)
-                                                                                    }
-                                                                                    self.editTaskUpdateAction = 0
-                                                                                    self.viewRouter.currentView = "todaysGoals"
-                                        })
-                                        ){
-                                            HStack() {
-                                                Text(task.task_title)
-                                                    .frame(width: geometry.size.height/5, alignment: .leading)
-                                                Text(Util.dateToString(date: task.task_dueDate!))
-                                                    .frame(width: geometry.size.height/5, alignment: .trailing)
-                                            }.onTapGesture(count: 2) {
-                                                self.managedObjectContext.performAndWait {
-                                                    task.task_completed.append(Util.localDate(date: Date()))
+                                    if (self.collapsed[1] == 0) {
+                                        ForEach(self.upcomingTasks
+                                            // one time goals should always have due dates
+                                            .filter({$0.task_dueDate != nil && $0.task_completed.isEmpty})
+                                            .sorted(by: {$0.task_dueDate! < $1.task_dueDate!})){
+                                                task in
+                                                NavigationLink(destination: EditTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Util.localDate(date: Date()), dayOfWeek: task.task_dayOfWeek, task: task,
+                                                                                         originalStateDueToday: Util.isTaskDueToday(t: task), editTaskAction: self.$editTaskUpdateAction, onSave: {
+                                                                                            if (self.editTaskUpdateAction == 2) {
+                                                                                                self.upcomingTasks.remove(at: self.upcomingTasks.firstIndex(of: task)!)
+                                                                                                self.tasksDueToday.append(task)
+                                                                                            }
+                                                                                            self.editTaskUpdateAction = 0
+                                                                                            self.viewRouter.currentView = "todaysGoals"
+                                                })
+                                                ){
+                                                    HStack() {
+                                                        Text(task.task_title)
+                                                            .frame(width: geometry.size.height/5, alignment: .leading)
+                                                        Text(Util.dateToString(date: task.task_dueDate!))
+                                                            .frame(width: geometry.size.height/5, alignment: .trailing)
+                                                    }.onTapGesture(count: 2) {
+                                                        self.managedObjectContext.performAndWait {
+                                                            task.task_completed.append(Util.localDate(date: Date()))
+                                                        }
+                                                        try? self.managedObjectContext.save()
+                                                        
+                                                        self.viewRouter.currentView = "todaysGoals"
+                                                    }
                                                 }
-                                                try? self.managedObjectContext.save()
-                                                
-                                                self.viewRouter.currentView = "todaysGoals"
-                                            }
                                         }
-                                }
+                                    }
                             }
                             
                             Section(header:
@@ -165,13 +169,15 @@ struct ContentView: View {
                                         }
                                     }.frame(width: geometry.size.width / 2, alignment: .trailing).offset(x: -geometry.size.width / 20)
                                 }.frame(width: geometry.size.width)) {
-                                ForEach(self.getCollapsedList(i: 2, tasks: self.getSortedCompletedTasks())){
-                                    task in
-                                    NavigationLink(destination: ViewTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Util.localDate(date: Date()), dayOfWeek: task.task_dayOfWeek, onSave: {})
-                                    ){
-                                        Text(task.task_title)
+                                    if (self.collapsed[2] == 0) {
+                                        ForEach(self.getSortedCompletedTasks()){
+                                            task in
+                                            NavigationLink(destination: ViewTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Util.localDate(date: Date()), dayOfWeek: task.task_dayOfWeek, onSave: {})
+                                            ){
+                                                Text(task.task_title)
+                                            }
+                                        }
                                     }
-                                }
                             }
                         }
                         .navigationBarTitle("Today's Goals")
@@ -372,14 +378,6 @@ struct ContentView: View {
         } else {
             return 0
         }
-    }
-    
-    func getCollapsedList(i: Int, tasks: [Task]) -> [Task] {
-        if (self.collapsed[i] == 0) {
-            return tasks
-        }
-        
-        return Array(tasks.prefix(2))
     }
 }
 
