@@ -37,7 +37,28 @@ struct ContentView: View {
                 if self.viewRouter.currentView == "todaysGoals" {
                     NavigationView {
                         List {
-                            Section(header: Text("Today's Tasks")){
+                            Section(header:
+                                HStack {
+                                    Text("Today's Tasks").frame(width: geometry.size.width / 2, alignment: .leading).offset(x: geometry.size.width / 20)
+                                    Button(action: {
+                                        self.collapsed[0] = 1 - self.collapsed[0]
+                                        self.viewRouter.currentView = "todaysGoals"
+                                    }) {
+                                        if (self.collapsed[0] == 0) {
+                                            Image(systemName: "minus")
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fit)
+                                                .frame(width: 15, height: 15)
+                                                .foregroundColor(.black)
+                                        } else {
+                                            Image(systemName: "plus")
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fit)
+                                                .frame(width: 15, height: 15)
+                                                .foregroundColor(.black)
+                                        }
+                                    }.frame(width: geometry.size.width / 2, alignment: .trailing).offset(x: -geometry.size.width / 20)
+                                }.frame(width: geometry.size.width)) {
                                 ForEach(self.getCollapsedList(i: 0, tasks: self.tasksDueToday.filter{($0.task_completed.isEmpty || Calendar.current.compare(Util.localDate(date: Date()), to: $0.task_completed.last!, toGranularity: .day).rawValue != 0) && ($0.task_deletedAt == nil || Calendar.current.compare(Util.localDate(date: Date()), to: $0.task_deletedAt!, toGranularity: .day).rawValue < 0)})){
                                     task in
                                     NavigationLink(destination: EditTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Util.localDate(date: Date()), dayOfWeek: task.task_dayOfWeek, task: task,
@@ -66,12 +87,30 @@ struct ContentView: View {
                                     
                                 }
                                 .onDelete(perform: self.deleteDailyTask)
-                            }.onLongPressGesture {
-                                self.collapsed[0] = 1 - self.collapsed[0]
-                                self.viewRouter.currentView = "todaysGoals"
                             }
                             
-                            Section(header: Text("Upcoming Tasks")){
+                            Section(header:
+                                HStack {
+                                    Text("Upcoming Tasks").frame(width: geometry.size.width / 2, alignment: .leading).offset(x: geometry.size.width / 20)
+                                    Button(action: {
+                                        self.collapsed[1] = 1 - self.collapsed[1]
+                                        self.viewRouter.currentView = "todaysGoals"
+                                    }) {
+                                        if (self.collapsed[1] == 0) {
+                                            Image(systemName: "minus")
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fit)
+                                                .frame(width: 15, height: 15)
+                                                .foregroundColor(.black)
+                                        } else {
+                                            Image(systemName: "plus")
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fit)
+                                                .frame(width: 15, height: 15)
+                                                .foregroundColor(.black)
+                                        }
+                                    }.frame(width: geometry.size.width / 2, alignment: .trailing).offset(x: -geometry.size.width / 20)
+                                }.frame(width: geometry.size.width)){
                                 ForEach(self.getCollapsedList(i: 1, tasks: self.upcomingTasks
                                     // one time goals should always have due dates
                                     .filter({$0.task_dueDate != nil && $0.task_completed.isEmpty})
@@ -102,12 +141,30 @@ struct ContentView: View {
                                             }
                                         }
                                 }
-                            }.onLongPressGesture {
-                                self.collapsed[1] = 1 - self.collapsed[1]
-                                self.viewRouter.currentView = "todaysGoals"
                             }
                             
-                            Section(header: Text("Completed Tasks")){
+                            Section(header:
+                                HStack {
+                                    Text("Completed Tasks").frame(width: geometry.size.width / 2, alignment: .leading).offset(x: geometry.size.width / 20)
+                                    Button(action: {
+                                        self.collapsed[2] = 1 - self.collapsed[2]
+                                        self.viewRouter.currentView = "todaysGoals"
+                                    }) {
+                                        if (self.collapsed[2] == 0) {
+                                            Image(systemName: "minus")
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fit)
+                                                .frame(width: 15, height: 15)
+                                                .foregroundColor(.black)
+                                        } else {
+                                            Image(systemName: "plus")
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fit)
+                                                .frame(width: 15, height: 15)
+                                                .foregroundColor(.black)
+                                        }
+                                    }.frame(width: geometry.size.width / 2, alignment: .trailing).offset(x: -geometry.size.width / 20)
+                                }.frame(width: geometry.size.width)) {
                                 ForEach(self.getCollapsedList(i: 2, tasks: self.getSortedCompletedTasks())){
                                     task in
                                     NavigationLink(destination: ViewTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Util.localDate(date: Date()), dayOfWeek: task.task_dayOfWeek, onSave: {})
@@ -115,9 +172,6 @@ struct ContentView: View {
                                         Text(task.task_title)
                                     }
                                 }
-                            }.onLongPressGesture {
-                                self.collapsed[2] = 1 - self.collapsed[2]
-                                self.viewRouter.currentView = "todaysGoals"
                             }
                         }
                         .navigationBarTitle("Today's Goals")
