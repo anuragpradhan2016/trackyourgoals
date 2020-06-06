@@ -18,13 +18,16 @@ class Util {
             return true
         } else {
             let date = Util.localDate(date: Date())
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "EEEE"
-            dateFormatter.timeZone = .current
-            let dayInWeek = dateFormatter.string(from: date).capitalized
-            
-            return Util.days[t.task_dayOfWeek] == dayInWeek
+            return Util.days[t.task_dayOfWeek] == Util.getWeekDay(date: date)
         }
+    }
+    
+    static func getWeekDay(date: Date) -> String {
+        let date = Util.localDate(date: date)
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "EEEE"
+        dateFormatter.timeZone = .current
+        return dateFormatter.string(from: date).capitalized
     }
     
     static func dateToString(date: Date) -> String {
@@ -48,7 +51,21 @@ class Util {
         return calendar.date(byAdding: dayComponent, to: date)!
     }
     
+    static func getNextDay(date: Date) -> Date {
+        var dayComponent = DateComponents()
+        dayComponent.day = +1
+        let calendar = Calendar.current
+        return calendar.date(byAdding: dayComponent, to: date)!
+    }
+    
+    static func getPreviousMinute(date: Date) -> Date {
+        var minuteComponent = DateComponents()
+        minuteComponent.minute = -1
+        let calendar = Calendar.current
+        return calendar.date(byAdding: minuteComponent, to: date)!
+    }
+    
     static func localDate (date: Date) -> Date {
-        return Util.stringToDate(date: Util.dateToString(date: date))
+        return Calendar.current.date(byAdding: .second, value: Int(Double(TimeZone.current.secondsFromGMT(for: date))), to: date)!
     }
 }

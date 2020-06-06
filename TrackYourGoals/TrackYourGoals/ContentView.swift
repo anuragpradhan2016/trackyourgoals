@@ -211,11 +211,9 @@ struct ContentView: View {
             
             // get the task with the earliest create date (history will go from yesterday to this date)
             let firstTask = self.tasks.min(by: {$0.task_createdAt < $1.task_createdAt})
-            print(firstTask)
             
             if firstTask != nil {
                 while(Calendar.current.compare(date, to: firstTask!.task_createdAt, toGranularity: .day).rawValue >= 0) {
-                    print(Util.dateToString(date: date))
                     self.history[Util.dateToString(date: date)] = []
                     date = Util.getPreviousDay(date: date)
                 }
