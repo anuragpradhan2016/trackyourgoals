@@ -211,9 +211,11 @@ struct ContentView: View {
             
             // get the task with the earliest create date (history will go from yesterday to this date)
             let firstTask = self.tasks.min(by: {$0.task_createdAt < $1.task_createdAt})
+            print(firstTask)
             
             if firstTask != nil {
                 while(Calendar.current.compare(date, to: firstTask!.task_createdAt, toGranularity: .day).rawValue >= 0) {
+                    print(Util.dateToString(date: date))
                     self.history[Util.dateToString(date: date)] = []
                     date = Util.getPreviousDay(date: date)
                 }
@@ -228,10 +230,11 @@ struct ContentView: View {
                     let date = task.task_createdAt
                     var lastDate = task.task_deletedAt ?? yesterday
                     
+                    if (Calendar.current.compare(Util.localDate(date: Date()), to: lastDate, toGranularity: .day).rawValue == 0) {
+                        lastDate = Util.getPreviousDay(date: lastDate)
+                    }
+                    
                     while(Calendar.current.compare(date, to: lastDate, toGranularity: .day).rawValue <= 0) {
-                        if (Calendar.current.compare(Util.localDate(date: Date()), to: lastDate, toGranularity: .day).rawValue == 0) {
-                            lastDate = Util.getPreviousDay(date: lastDate)
-                        }
                         self.history[Util.dateToString(date: lastDate)]!.append(task)
                         lastDate = Util.getPreviousDay(date: lastDate)
                     }
@@ -242,6 +245,10 @@ struct ContentView: View {
                     
                     let date = task.task_createdAt
                     var lastDate = task.task_deletedAt ?? yesterday
+                    
+                    if (Calendar.current.compare(Util.localDate(date: Date()), to: lastDate, toGranularity: .day).rawValue == 0) {
+                        lastDate = Util.getPreviousDay(date: lastDate)
+                    }
                     
                     while(Calendar.current.compare(lastDate, to: date, toGranularity: .day).rawValue >= 0) {
                         let date = Util.localDate(date: lastDate)
