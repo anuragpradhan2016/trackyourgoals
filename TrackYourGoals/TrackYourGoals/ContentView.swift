@@ -137,11 +137,8 @@ struct ContentView: View {
                 Spacer()
                 ZStack {
                     HStack {
-                        CustomTabViewItem(tabName: "Today", width: geometry.size.width/6, foregroundColor: self.viewRouter.currentView == "todaysGoals" ? .black : .gray, onTapGesture: {self.viewRouter.currentView = "todaysGoals"})
-                        
-                        CustomTabViewItem(tabName: "Upcoming", width: geometry.size.width/5, foregroundColor: self.viewRouter.currentView == "upcomingGoals" ? .black : .gray, onTapGesture: {self.viewRouter.currentView = "upcomingGoals"})
-                        
-                        
+                        CustomTabViewItem(name: "house", width: geometry.size.width/3, foregroundColor: self.viewRouter.currentView == "todaysGoals" ? .black : .gray, onTapGesture: {self.viewRouter.currentView = "todaysGoals"})
+                
                         ZStack {
                             Button(action: {
                                 self.modalDisplayed = true
@@ -201,9 +198,8 @@ struct ContentView: View {
                         .offset(y: -geometry.size.height/10/2)
                         
                         
-                        CustomTabViewItem(tabName: "History", width: geometry.size.width/6, foregroundColor: self.viewRouter.currentView == "history" ? .black : .gray, onTapGesture: {self.viewRouter.currentView = "history"})
+                        CustomTabViewItem(name: "chart.bar", width: geometry.size.width/3, foregroundColor: self.viewRouter.currentView == "history" ? .black : .gray, onTapGesture: {self.viewRouter.currentView = "history"})
                         
-                        CustomTabViewItem(tabName: "Settings", width: geometry.size.width/6, foregroundColor: self.viewRouter.currentView == "settings" ? .black : .gray, onTapGesture: {self.viewRouter.currentView = "settings"})
                     }
                     .frame(width: geometry.size.width, height: geometry.size.height/10)
                     .background(Color.white.shadow(radius: 2))

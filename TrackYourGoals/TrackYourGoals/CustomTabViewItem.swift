@@ -10,17 +10,22 @@ import Foundation
 import SwiftUI
 
 struct CustomTabViewItem: View {
-    var tabName: String = ""
+    var name: String = ""
     var width: CGFloat
     var foregroundColor: Color
     var onTapGesture: () -> ()
     
     var body: some View {
-        Text(tabName)
-            .frame(width: width, height: 75)
-            .foregroundColor(foregroundColor)
-            .onTapGesture {
-                self.onTapGesture()
+        HStack {
+            Image(systemName: name)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .padding(20)
+                .frame(width: width, height: 75)
+                .foregroundColor(foregroundColor)
+                .onTapGesture {
+                    self.onTapGesture()
+            }
         }
     }
 }
