@@ -20,6 +20,7 @@ class Util {
             let date = Date()
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "MMMM d, yyyy"
+            dateFormatter.timeZone = .current
             let dayInWeek = dateFormatter.string(from: date)
             
             return Util.days[t.task_dayOfWeek] == dayInWeek
@@ -29,12 +30,14 @@ class Util {
     static func dateToString(date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMMM d, yyyy"
+        formatter.timeZone = .current
         return formatter.string(for: date)!
     }
     
     static func stringToDate(date: String) -> Date {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMMM d, yyyy"
+        formatter.timeZone = .current
         return formatter.date(from: date)!
     }
     
@@ -43,5 +46,9 @@ class Util {
         dayComponent.day = -1
         let calendar = Calendar.current
         return calendar.date(byAdding: dayComponent, to: date)!
+    }
+    
+    static func localDate (date: Date) -> Date {
+        return Util.stringToDate(date: Util.dateToString(date: date))
     }
 }

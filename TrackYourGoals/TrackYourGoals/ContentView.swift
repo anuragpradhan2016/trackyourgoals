@@ -19,7 +19,7 @@ struct ContentView: View {
     @State var task_notification = false
     @State var todaysTaskCompleted = false
     @State var addTaskCompleted = false
-    @State var dueDate = Date()
+    @State var dueDate = Util.localDate(date: Date())
     @State var dayOfWeek = 0
     
     @State var taskSwipe = CGSize.zero
@@ -40,8 +40,8 @@ struct ContentView: View {
                             Section(header: Text("Today's Tasks")){
                                 ForEach(self.tasksDueToday){
                                     task in
-                                    if (task.task_completed.isEmpty || Calendar.current.compare(Date(), to: task.task_completed.last!, toGranularity: .day).rawValue != 0) && (task.task_deletedAt == nil || Calendar.current.compare(Date(), to: task.task_deletedAt!, toGranularity: .day).rawValue < 0) {
-                                        NavigationLink(destination: EditTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Date(), dayOfWeek: task.task_dayOfWeek, task: task,
+                                    if (task.task_completed.isEmpty || Calendar.current.compare(Util.localDate(date: Date()), to: task.task_completed.last!, toGranularity: .day).rawValue != 0) && (task.task_deletedAt == nil || Calendar.current.compare(Util.localDate(date: Date()), to: task.task_deletedAt!, toGranularity: .day).rawValue < 0) {
+                                        NavigationLink(destination: EditTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Util.localDate(date: Date()), dayOfWeek: task.task_dayOfWeek, task: task,
                                                                                  originalStateDueToday: Util.isTaskDueToday(t: task), editTaskAction: self.$editTaskUpdateAction, onSave: {
                                                                                     if (self.editTaskUpdateAction == 1) {
                                                                                         self.tasksDueToday.remove(at: self.tasksDueToday.firstIndex(of: task)!)
@@ -57,7 +57,7 @@ struct ContentView: View {
                                             Text(task.task_title)
                                                 .onTapGesture(count: 2) {
                                                     self.managedObjectContext.performAndWait {
-                                                        task.task_completed.append(Date())
+                                                        task.task_completed.append(Util.localDate(date: Date()))
                                                     }
                                                     try? self.managedObjectContext.save()
                                                     
@@ -76,7 +76,7 @@ struct ContentView: View {
                                     .filter({$0.task_dueDate != nil && $0.task_completed.isEmpty})
                                     .sorted(by: {$0.task_dueDate! < $1.task_dueDate!})){
                                         task in
-                                        NavigationLink(destination: EditTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Date(), dayOfWeek: task.task_dayOfWeek, task: task,
+                                        NavigationLink(destination: EditTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Util.localDate(date: Date()), dayOfWeek: task.task_dayOfWeek, task: task,
                                                                                  originalStateDueToday: Util.isTaskDueToday(t: task), editTaskAction: self.$editTaskUpdateAction, onSave: {
                                                                                     if (self.editTaskUpdateAction == 2) {
                                                                                         self.upcomingTasks.remove(at: self.upcomingTasks.firstIndex(of: task)!)
@@ -93,7 +93,7 @@ struct ContentView: View {
                                                     .frame(width: geometry.size.height/5, alignment: .trailing)
                                             }.onTapGesture(count: 2) {
                                                 self.managedObjectContext.performAndWait {
-                                                    task.task_completed.append(Date())
+                                                    task.task_completed.append(Util.localDate(date: Date()))
                                                 }
                                                 try? self.managedObjectContext.save()
                                                 
@@ -106,8 +106,8 @@ struct ContentView: View {
                             Section(header: Text("Completed Tasks")){
                                 ForEach(self.getSortedCompletedTasks()){
                                     task in
-                                    if  (task.task_deletedAt == nil || Calendar.current.compare(Date(), to: task.task_deletedAt!, toGranularity: .day).rawValue < 0) {
-                                        NavigationLink(destination: ViewTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Date(), dayOfWeek: task.task_dayOfWeek, onSave: {})
+                                    if  (task.task_deletedAt == nil || Calendar.current.compare(Util.localDate(date: Date()), to: task.task_deletedAt!, toGranularity: .day).rawValue < 0) {
+                                        NavigationLink(destination: ViewTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Util.localDate(date: Date()), dayOfWeek: task.task_dayOfWeek, onSave: {})
                                         ){
                                             Text(task.task_title)
                                         }
@@ -146,7 +146,7 @@ struct ContentView: View {
                                 self.task_frequency = 0
                                 self.task_notification = false
                                 self.addTaskCompleted = false
-                                self.dueDate = Date()
+                                self.dueDate = Util.localDate(date: Date())
                             }) {
                                 Image(systemName: "plus.circle.fill")
                                     .resizable()
@@ -165,8 +165,8 @@ struct ContentView: View {
                                                     task.task_title = self.task_title
                                                     task.task_frequency = self.task_frequency
                                                     task.task_notification = self.task_notification
-                                                    task.task_createdAt = Date()
-                                                    task.task_dueDate = self.dueDate
+                                                    task.task_createdAt = Util.localDate(date: Date())
+                                                    task.task_dueDate = Util.localDate(date: self.dueDate)
                                                     task.task_dayOfWeek = self.dayOfWeek
                                                     task.task_completed = []
                                                     
@@ -209,7 +209,7 @@ struct ContentView: View {
             self.todaysTaskCompleted = false
             
             // get previous days date
-            let yesterday = Util.getPreviousDay(date: Date())
+            let yesterday = Util.getPreviousDay(date: Util.localDate(date: Date()))
             var date = yesterday
             
             // get the task with the earliest create date (history will go from yesterday to this date)
@@ -217,7 +217,6 @@ struct ContentView: View {
             
             if firstTask != nil {
                 while(Calendar.current.compare(date, to: firstTask!.task_createdAt, toGranularity: .day).rawValue >= 0) {
-                    print(Util.dateToString(date: date))
                     self.history[Util.dateToString(date: date)] = []
                     date = Util.getPreviousDay(date: date)
                 }
@@ -264,7 +263,7 @@ struct ContentView: View {
                         self.upcomingTasks.append(task)
                     }
                     
-                    if (task.task_deletedAt == nil && Calendar.current.compare(Date(), to: task.task_dueDate!, toGranularity: .day).rawValue > 0) {
+                    if (task.task_deletedAt == nil && Calendar.current.compare(Util.localDate(date: Date()), to: task.task_dueDate!, toGranularity: .day).rawValue > 0) {
                         self.history[Util.dateToString(date: task.task_dueDate!)]!.append(task)
                     }
                 }
@@ -275,7 +274,7 @@ struct ContentView: View {
     
     func deleteDailyTask(with indexSet: IndexSet){
         self.managedObjectContext.performAndWait {
-            self.tasksDueToday[indexSet.first!].task_deletedAt = Date()
+            self.tasksDueToday[indexSet.first!].task_deletedAt = Util.localDate(date: Date())
         }
         try? self.managedObjectContext.save()
         self.tasksDueToday.remove(at: indexSet.first!)
@@ -283,7 +282,7 @@ struct ContentView: View {
     
     func getSortedCompletedTasks() -> [Task] {
         let completedUpcoming = upcomingTasks.filter{!$0.task_completed.isEmpty}
-        let completedDueToday = tasksDueToday.filter{!$0.task_completed.isEmpty && Calendar.current.compare(Date(), to: $0.task_completed.last!, toGranularity: .day).rawValue == 0}
+        let completedDueToday = tasksDueToday.filter{!$0.task_completed.isEmpty && Calendar.current.compare(Util.localDate(date: Date()), to: $0.task_completed.last!, toGranularity: .day).rawValue == 0}
         let allCompletedTasks = completedDueToday + completedUpcoming
         return allCompletedTasks.sorted(by: {$0.task_completed.last! > $1.task_completed.last!})
     }
