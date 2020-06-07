@@ -117,22 +117,22 @@ struct ContentView: View {
                         }
                         .navigationBarTitle("Today's Goals")
                     }
-                    
-                } else if self.viewRouter.currentView == "upcomingGoals" {
-                    
                 } else if self.viewRouter.currentView == "history" {
                     NavigationView {
                         List {
                             ForEach(self.history.sorted(by: {Calendar.current.compare(Util.stringToDate(date: $0.key), to: Util.stringToDate(date: $1.key), toGranularity: .day).rawValue > 0}), id: \.key) { key, value in
-                                Text("\(key): \(self.howManyTasksCompleted(date: key)) / \(value.count)")
+                                NavigationLink(destination: HistoryDayView(date: key, tasks: value)) {
+                                Text("\(key): Completed \(self.howManyTasksCompleted(date: key)) out of \(value.count) tasks")
+                                    .foregroundColor(self.howManyTasksCompleted(date: key) == value.count ? .green : .red)
+                                }
                             }
                         }
+                          .navigationBarTitle(Text("History"))
                     }
-                    .navigationBarTitle(Text("History"))
+                  
                     
-                } else if self.viewRouter.currentView == "settings" {
-                    Text("Settings")
                 }
+                    
                 
                 Spacer()
                 ZStack {
