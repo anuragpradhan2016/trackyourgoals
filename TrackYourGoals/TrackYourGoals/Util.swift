@@ -19,9 +19,8 @@ class Util {
         } else {
             let date = Date()
             let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "EEEE"
+            dateFormatter.dateFormat = "MMMM d, yyyy"
             let dayInWeek = dateFormatter.string(from: date)
-            
             
             return Util.days[t.task_dayOfWeek] == dayInWeek
         }
@@ -29,7 +28,20 @@ class Util {
     
     static func dateToString(date: Date) -> String {
         let formatter = DateFormatter()
-        formatter.dateStyle = .medium
+        formatter.dateFormat = "MMMM d, yyyy"
         return formatter.string(for: date)!
+    }
+    
+    static func stringToDate(date: String) -> Date {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMMM d, yyyy"
+        return formatter.date(from: date)!
+    }
+    
+    static func getPreviousDay(date: Date) -> Date {
+        var dayComponent = DateComponents()
+        dayComponent.day = -1
+        let calendar = Calendar.current
+        return calendar.date(byAdding: dayComponent, to: date)!
     }
 }

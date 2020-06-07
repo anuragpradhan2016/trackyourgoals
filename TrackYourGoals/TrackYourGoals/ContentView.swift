@@ -26,6 +26,7 @@ struct ContentView: View {
     @State var editTaskUpdateAction: Int = 0 // 0-> nothing, 1 -> delete from daily, 2 -> add to daily
     @State var tasksDueToday: [Task] = []
     @State var upcomingTasks: [Task] = []
+    @State var history: [String : [Task]] = [:]
     
     var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
     
@@ -120,6 +121,14 @@ struct ContentView: View {
                 } else if self.viewRouter.currentView == "upcomingGoals" {
                     
                 } else if self.viewRouter.currentView == "history" {
+                    NavigationView {
+                        List {
+                            ForEach(self.history.sorted(by: {Calendar.current.compare(Util.stringToDate(date: $0.key), to: Util.stringToDate(date: $1.key), toGranularity: .day).rawValue > 0}), id: \.key) { key, value in
+                                Text("\(key): \(self.howManyTasksCompleted(date: key)) / \(value.count)")
+                            }
+                        }
+                    }
+                    .navigationBarTitle(Text("History"))
                     
                 } else if self.viewRouter.currentView == "settings" {
                     Text("Settings")
@@ -203,26 +212,71 @@ struct ContentView: View {
         }.onAppear() {
             self.todaysTaskCompleted = false
             
+            // get previous days date
+            let yesterday = Util.getPreviousDay(date: Date())
+            var date = yesterday
+            
+            // get the task with the earliest create date (history will go from yesterday to this date)
+            let firstTask = self.tasks.min(by: {$0.task_createdAt < $1.task_createdAt})
+            
+            if firstTask != nil {
+                while(Calendar.current.compare(date, to: firstTask!.task_createdAt, toGranularity: .day).rawValue >= 0) {
+                    print(Util.dateToString(date: date))
+                    self.history[Util.dateToString(date: date)] = []
+                    date = Util.getPreviousDay(date: date)
+                }
+            }
+            
             for i in 0..<self.tasks.count {
                 let task = self.tasks[i]
                 
                 if task.task_frequency == 1 {
                     self.tasksDueToday.append(task)
+                    
+                    let date = task.task_createdAt
+                    var lastDate = task.task_deletedAt ?? yesterday
+                    
+                    while(Calendar.current.compare(date, to: lastDate, toGranularity: .day).rawValue <= 0) {
+                        self.history[Util.dateToString(date: lastDate)]!.append(task)
+                        lastDate = Util.getPreviousDay(date: lastDate)
+                    }
+                    
                 } else if task.task_frequency == 2 {
                     if Util.isTaskDueToday(t: task){
                         self.tasksDueToday.append(task)
                     }
+                    
+                    let date = task.task_createdAt
+                    var lastDate = task.task_deletedAt ?? yesterday
+                    
+                    while(Calendar.current.compare(date, to: lastDate, toGranularity: .day).rawValue <= 0) {
+                        let dateFormatter = DateFormatter()
+                        dateFormatter.dateFormat = "MMMM d, yyyy"
+                        let dayInWeek = dateFormatter.string(from: lastDate)
+                        
+                        if Util.days[task.task_dayOfWeek] == dayInWeek {
+                            self.history[Util.dateToString(date: lastDate)]!.append(task)
+                        }
+                        
+                        lastDate = Util.getPreviousDay(date: lastDate)
+                    }
+                    
                 } else {
                     if (Util.isTaskDueToday(t: task)) {
                         self.tasksDueToday.append(task)
                     } else {
                         self.upcomingTasks.append(task)
                     }
+                    
+                    if (task.task_deletedAt == nil && Calendar.current.compare(Date(), to: task.task_dueDate!, toGranularity: .day).rawValue > 0) {
+                        self.history[Util.dateToString(date: task.task_dueDate!)]!.append(task)
+                    }
                 }
             }
+            self.history = self.history.filter({!$0.value.isEmpty})
         }
     }
-        
+    
     func deleteDailyTask(with indexSet: IndexSet){
         self.managedObjectContext.performAndWait {
             self.tasksDueToday[indexSet.first!].task_deletedAt = Date()
@@ -237,8 +291,24 @@ struct ContentView: View {
         let allCompletedTasks = completedDueToday + completedUpcoming
         return allCompletedTasks.sorted(by: {$0.task_completed.last! > $1.task_completed.last!})
     }
+    
+    func howManyTasksCompleted(date: String) -> Int {
+        if self.history[date] != nil {
+            var count = 0
+            for task in self.history[date]! {
+                if !task.task_completed.isEmpty {
+                    if task.task_completed.first(where: {Calendar.current.compare(Util.stringToDate(date: date), to: $0, toGranularity: .day).rawValue == 0}) != nil {
+                        count += 1
+                    }
+                }
+            }
+            
+            return count
+        } else {
+            return 0
+        }
+    }
 }
-
 
 
 struct ContentView_Previews: PreviewProvider {
