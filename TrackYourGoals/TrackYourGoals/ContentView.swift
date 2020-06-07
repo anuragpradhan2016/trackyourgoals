@@ -198,7 +198,7 @@ struct ContentView: View {
                         .offset(y: -geometry.size.height/10/2)
                         
                         
-                        CustomTabViewItem(name: "chart.bar", width: geometry.size.width/3, foregroundColor: self.viewRouter.currentView == "history" ? .black : .gray, onTapGesture: {self.viewRouter.currentView = "history"})
+                        CustomTabViewItem(name: "clock", width: geometry.size.width/3, foregroundColor: self.viewRouter.currentView == "history" ? .black : .gray, onTapGesture: {self.viewRouter.currentView = "history"})
                         
                     }
                     .frame(width: geometry.size.width, height: geometry.size.height/10)
