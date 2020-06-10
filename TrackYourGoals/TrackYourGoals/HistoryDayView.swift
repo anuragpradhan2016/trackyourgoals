@@ -19,7 +19,7 @@ struct HistoryDayView: View {
                 Section(header: Text("Completed Tasks")){
                     ForEach(self.tasks) {task in
                         if !task.task_completed.isEmpty && task.task_completed.first(where: {Calendar.current.compare(Util.stringToDate(date: self.date), to: $0, toGranularity: .day).rawValue == 0}) != nil {
-                            NavigationLink(destination: ViewTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Date(), dayOfWeek: task.task_dayOfWeek, onSave: {})
+                            NavigationLink(destination: ViewTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Date(), dayOfWeek: task.task_dayOfWeek, details: task.task_details, onSave: {})
                             ){
                                 Text(task.task_title)
                             }
@@ -31,7 +31,7 @@ struct HistoryDayView: View {
                 Section(header: Text("Incompleted Tasks")){
                     ForEach(self.tasks) {task in
                         if task.task_completed.isEmpty || task.task_completed.first(where: {Calendar.current.compare(Util.stringToDate(date: self.date), to: $0, toGranularity: .day).rawValue == 0}) == nil {
-                            NavigationLink(destination: ViewTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Date(), dayOfWeek: task.task_dayOfWeek, onSave: {})
+                            NavigationLink(destination: ViewTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Date(), dayOfWeek: task.task_dayOfWeek, details: task.task_details, onSave: {})
                             ){
                                 Text(task.task_title)
                             }

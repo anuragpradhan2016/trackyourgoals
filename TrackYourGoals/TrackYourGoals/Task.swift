@@ -20,6 +20,7 @@ public class Task:NSManagedObject, Identifiable {
     @NSManaged public var task_deletedAt:Date?
     @NSManaged public var task_id:Int
     @NSManaged public var task_reminder:Date?
+    @NSManaged public var task_details:String
 }
 
 extension Task {

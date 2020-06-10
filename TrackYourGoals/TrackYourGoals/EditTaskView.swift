@@ -22,7 +22,7 @@ struct EditTaskView: View {
     @State var reminder: Date
     @State var originalStateDueToday: Bool
     @Binding var editTaskAction: Int
-    
+    @State var details: String
     @State var onSave: () -> ()
     
     var frequencies = ["Never", "Daily", "Weekly"]
@@ -68,6 +68,10 @@ struct EditTaskView: View {
                         }
                     }
                 }
+                                
+                Section {
+                    TextField("Task Details", text: self.$details)
+                }
                 
                 Section {
                     Button(action: {
@@ -75,6 +79,7 @@ struct EditTaskView: View {
                             self.task.task_title = self.title
                             self.task.task_frequency = self.frequency
                             self.task.task_notification = self.notificationsOn
+                            self.task.task_details = self.details
                             
                             if self.frequency == 0 {
                                 self.task.task_dueDate = self.dueDate

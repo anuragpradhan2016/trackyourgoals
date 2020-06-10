@@ -29,6 +29,7 @@ struct ContentView: View {
     @State var upcomingTasks: [Task] = []
     @State var history: [String : [Task]] = [:]
     @State var collapsed = [0, 1, 1] // i = 1 => the ith section of home is collapsed
+    @State var details = ""
     
     var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
     
@@ -65,7 +66,8 @@ struct ContentView: View {
                                         ForEach(self.tasksDueToday.filter{($0.task_completed.isEmpty || Calendar.current.compare(Util.localDate(date: Date()), to: $0.task_completed.last!, toGranularity: .day).rawValue != 0) && ($0.task_deletedAt == nil || Calendar.current.compare(Util.localDate(date: Date()), to: $0.task_deletedAt!, toGranularity: .day).rawValue < 0)}){
                                             task in
                                             NavigationLink(destination: EditTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Util.localDate(date: Date()), dayOfWeek: task.task_dayOfWeek, task: task, reminder: task.task_notification ? task.task_reminder! : Util.localDate(date: Date()),
-                                                                                     originalStateDueToday: Util.isTaskDueToday(t: task), editTaskAction: self.$editTaskUpdateAction, onSave: {
+                                                                                     originalStateDueToday: Util.isTaskDueToday(t: task), editTaskAction: self.$editTaskUpdateAction,
+                                                                                     details: task.task_details, onSave: {
                                                                                         if (self.editTaskUpdateAction == 1) {
                                                                                             self.tasksDueToday.remove(at: self.tasksDueToday.firstIndex(of: task)!)
                                                                                             self.upcomingTasks.append(task)
@@ -122,7 +124,8 @@ struct ContentView: View {
                                             .sorted(by: {$0.task_dueDate! < $1.task_dueDate!})){
                                                 task in
                                                 NavigationLink(destination: EditTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Util.localDate(date: Date()), dayOfWeek: task.task_dayOfWeek, task: task, reminder: task.task_notification ? task.task_reminder! : Util.localDate(date: Date()),
-                                                                                         originalStateDueToday: Util.isTaskDueToday(t: task), editTaskAction: self.$editTaskUpdateAction, onSave: {
+                                                                                         originalStateDueToday: Util.isTaskDueToday(t: task), editTaskAction: self.$editTaskUpdateAction,
+                                                                                         details: task.task_details, onSave: {
                                                                                             if (self.editTaskUpdateAction == 2) {
                                                                                                 self.upcomingTasks.remove(at: self.upcomingTasks.firstIndex(of: task)!)
                                                                                                 self.tasksDueToday.append(task)
@@ -174,7 +177,7 @@ struct ContentView: View {
                                     if (self.collapsed[2] == 0) {
                                         ForEach(self.getSortedCompletedTasks()){
                                             task in
-                                            NavigationLink(destination: ViewTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Util.localDate(date: Date()), dayOfWeek: task.task_dayOfWeek, onSave: {})
+                                            NavigationLink(destination: ViewTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Util.localDate(date: Date()), dayOfWeek: task.task_dayOfWeek, details: task.task_details, onSave: {})
                                             ){
                                                 Text(task.task_title)
                                             }
@@ -213,6 +216,7 @@ struct ContentView: View {
                                 self.task_frequency = 0
                                 self.task_notification = false
                                 self.addTaskCompleted = false
+                                self.details = ""
                                 self.dueDate = Util.localDate(date: Date())
                             }) {
                                 Image(systemName: "plus.circle.fill")

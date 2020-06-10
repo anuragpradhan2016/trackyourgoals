@@ -18,6 +18,7 @@ struct ViewTaskView: View {
     @State var notificationsOn: Bool
     @State var dueDate: Date
     @State var dayOfWeek: Int
+    @State var details: String
     
     @State var onSave: () -> ()
     
@@ -56,6 +57,10 @@ struct ViewTaskView: View {
                         Text("Receive Notificatons")
                     }.disabled(true)
                 }
+                
+                Section {
+                    TextField("Task Details", text: self.$details)
+                }.disabled(true)
                 
             }
         }
