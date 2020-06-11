@@ -60,8 +60,10 @@ struct ViewTaskView: View {
                 }
                 
                 Section {
-                    TextField("Task Details", text: self.$details)
-                }.disabled(true)
+                    Section {
+                        TextView(txt: self.$details, editable: false)
+                    }.frame(height: 75)
+                }
                 
             }
         }

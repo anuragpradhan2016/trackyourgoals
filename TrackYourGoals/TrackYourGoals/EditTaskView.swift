@@ -71,8 +71,8 @@ struct EditTaskView: View {
                 }
                 
                 Section {
-                    TextField("Task Details", text: self.$details)
-                }
+                    TextView(txt: self.$details, editable: true)
+                }.frame(height: 75)
                 
                 Section {
                     Button(action: {
