@@ -230,7 +230,6 @@ struct ContentView: View {
                                                 NavigationLink(destination: ViewTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Util.localDate(date: Date()), dayOfWeek: task.task_dayOfWeek, details: task.task_details, onSave: {})
                                                 ){
                                                     EmptyView()
-                                                    
                                                 }
                                                 HStack { Text(task.task_title).foregroundColor(self.foregroundColor)
                                                     Spacer()
@@ -252,9 +251,21 @@ struct ContentView: View {
                     NavigationView {
                         List {
                             ForEach(self.history.sorted(by: {Calendar.current.compare(Util.stringToDate(date: $0.key), to: Util.stringToDate(date: $1.key), toGranularity: .day).rawValue > 0}), id: \.key) { key, value in
-                                NavigationLink(destination: HistoryDayView(date: key, tasks: value)) {
-                                    Text("\(key): Completed \(self.howManyTasksCompleted(date: key)) out of \(value.count) tasks")
-                                        .foregroundColor(self.howManyTasksCompleted(date: key) == value.count ? .green : .red)
+                                ZStack {
+                                    NavigationLink(destination: HistoryDayView(date: key, tasks: value, geometryWidth: geometry.size.width)) {
+                                        EmptyView()
+                                    }
+                                    
+                                    HStack {
+                                        Text("\(key): Completed \(self.howManyTasksCompleted(date: key)) out of \(value.count) tasks")
+                                            .foregroundColor(self.howManyTasksCompleted(date: key) == value.count ? .green : .red)
+                                        Spacer()
+                                        Image(systemName: "chevron.right")
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fit)
+                                            .frame(width: 7)
+                                            .foregroundColor(self.foregroundColor)
+                                    }
                                 }
                             }
                         }
