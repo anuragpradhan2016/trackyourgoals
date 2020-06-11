@@ -11,7 +11,7 @@ import SwiftUI
 
 struct AddTaskView: View {
     @Environment(\.presentationMode) private var presentationMode
-
+    
     @Binding var title: String
     @Binding var frequency: Int
     @Binding var notificationsOn: Bool
@@ -31,25 +31,26 @@ struct AddTaskView: View {
         NavigationView {
             Form {
                 Section{
-                    TextField("Task Title", text: $title)
-                    Picker(selection: $frequency, label: Text("Repeat")) {
+                    CustomTextField(placeholder: Text("Task Title").foregroundColor(Color.white.opacity(0.4)), text: $title).foregroundColor(Color.white)
+                    
+                    Picker(selection: $frequency, label: Text("Repeat").foregroundColor(.white)) {
                         ForEach(0 ..< self.frequencies.count, id: \.self) {
                             Text(self.frequencies[$0]).tag($0)
-                        }
+                        }.colorInvert().colorMultiply(.white)
                     }
                     
                     if (frequency == 2){
-                        Picker(selection: $dayOfWeek, label: Text("Select Day")) {
+                        Picker(selection: $dayOfWeek, label: Text("Select Day").foregroundColor(.white)) {
                             ForEach(0 ..< self.days.count, id: \.self) {
                                 Text(self.days[$0]).tag($0)
-                            }
+                            }.colorInvert().colorMultiply(.white)
                         }
                     }
                     
                     if (frequency == 0) {
                         DatePicker(selection: $dueDate, in: Date()..., displayedComponents: .date) {
                             Text("Select due date")
-                        }
+                        }.colorInvert().colorMultiply(.white)
                     }
                     
                 }
@@ -57,14 +58,14 @@ struct AddTaskView: View {
                 
                 Section {
                     Toggle(isOn: $notificationsOn) {
-                        Text("Receive Notificatons")
+                        Text("Receive Notificatons").foregroundColor(.white)
                     }
                     
                     if self.notificationsOn {
                         if self.frequency == 0 {
-                            DatePicker("Select Reminder Date and Time: ", selection: self.$reminder, in: Util.localDate(date: Date())...Util.getPreviousMinute(date: Util.getNextDay(date: Util.stringToDate(date: Util.dateToString(date: self.dueDate)))), displayedComponents: [.hourAndMinute, .date])
+                            DatePicker("Select Reminder Date and Time: ", selection: self.$reminder, in: Util.localDate(date: Date())...Util.getPreviousMinute(date: Util.getNextDay(date: Util.stringToDate(date: Util.dateToString(date: self.dueDate)))), displayedComponents: [.hourAndMinute, .date]).colorInvert().colorMultiply(.white)
                         } else {
-                            DatePicker("Select Reminder Time: ", selection: self.$reminder, displayedComponents: [.hourAndMinute])
+                            DatePicker("Select Reminder Time: ", selection: self.$reminder, displayedComponents: [.hourAndMinute]).colorInvert().colorMultiply(.white)
                         }
                     }
                 }

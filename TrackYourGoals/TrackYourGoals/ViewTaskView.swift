@@ -29,32 +29,33 @@ struct ViewTaskView: View {
         NavigationView {
             Form {
                 Section{
-                    TextField("Task Title", text: self.$title).disabled(true)
-                    Picker(selection: self.$frequency, label: Text("Repeat")) {
+                    CustomTextField(placeholder: Text("Task Title").foregroundColor(Color.white.opacity(0.4)), text: $title).foregroundColor(Color.white).disabled(true)
+                    
+                    Picker(selection: self.$frequency, label: Text("Repeat").foregroundColor(.white)) {
                         ForEach(0 ..< self.frequencies.count, id: \.self) {
                             Text(self.frequencies[$0]).tag($0)
-                        }
+                        }.colorInvert().colorMultiply(.white)
                     }.disabled(true)
                     
                     if (frequency == 2){
-                        Picker(selection: $dayOfWeek, label: Text("Select Day")) {
+                        Picker(selection: $dayOfWeek, label: Text("Select Day").foregroundColor(.white)) {
                             ForEach(0 ..< self.days.count, id: \.self) {
                                 Text(self.days[$0]).tag($0)
-                            }
+                            }.colorInvert().colorMultiply(.white)
                         }.disabled(true)
                     }
                     
                     if (frequency == 0) {
                         DatePicker(selection: $dueDate, in: Date()..., displayedComponents: .date) {
                             Text("Select due date")
-                        }.disabled(true)
+                        }.colorInvert().colorMultiply(.white).disabled(true)
                     }
                 }
                 
                 
                 Section {
                     Toggle(isOn: self.$notificationsOn) {
-                        Text("Receive Notificatons")
+                        Text("Receive Notificatons").foregroundColor(.white)
                     }.disabled(true)
                 }
                 

@@ -31,18 +31,41 @@ struct ContentView: View {
     @State var collapsed = [0, 1, 1] // i = 1 => the ith section of home is collapsed
     @State var details = ""
     
+    var backgroundColor = Color.black.opacity(0.9)
+    var backgroundUIColor = UIColor.black.withAlphaComponent(0.9)
+    
+    var foregroundColor = Color.white
+    var foregroundUIColor = UIColor.white
+    
     var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+    let coloredNavAppearance = UINavigationBarAppearance()
+    
+    init() {
+        coloredNavAppearance.configureWithOpaqueBackground()
+        coloredNavAppearance.backgroundColor = backgroundUIColor.withAlphaComponent(0)
+        coloredNavAppearance.titleTextAttributes = [.foregroundColor: foregroundUIColor]
+        coloredNavAppearance.largeTitleTextAttributes = [.foregroundColor: foregroundUIColor]
+        
+        UITableView.appearance().separatorColor = UIColor.gray.withAlphaComponent(0.4)
+        UITableView.appearance().backgroundColor = backgroundUIColor
+        UITableViewCell.appearance().backgroundColor = backgroundUIColor.withAlphaComponent(0)
+        
+        UINavigationBar.appearance().standardAppearance = coloredNavAppearance
+        UINavigationBar.appearance().scrollEdgeAppearance = coloredNavAppearance
+    }
     
     var body: some View {
+        
         GeometryReader { geometry in
-            VStack {
+            VStack(spacing: 0) {
                 Spacer()
                 if self.viewRouter.currentView == "todaysGoals" {
                     NavigationView {
                         List {
                             Section(header:
                                 HStack {
-                                    Text("Today's Tasks").frame(width: geometry.size.width / 2, alignment: .leading).offset(x: geometry.size.width / 20)
+                                    Text("Today's Tasks").frame(width: geometry.size.width / 2, alignment: .leading).offset(x: geometry.size.width / 20).foregroundColor(self.foregroundColor).padding()
+                                    
                                     Button(action: {
                                         self.collapsed[0] = 1 - self.collapsed[0]
                                         self.viewRouter.currentView = "todaysGoals"
@@ -52,44 +75,54 @@ struct ContentView: View {
                                                 .resizable()
                                                 .aspectRatio(contentMode: .fit)
                                                 .frame(width: 15, height: 15)
-                                                .foregroundColor(.black)
+                                                .foregroundColor(.white)
                                         } else {
                                             Image(systemName: "plus")
                                                 .resizable()
                                                 .aspectRatio(contentMode: .fit)
                                                 .frame(width: 15, height: 15)
-                                                .foregroundColor(.black)
+                                                .foregroundColor(.white)
                                         }
-                                    }.frame(width: geometry.size.width / 2, alignment: .trailing).offset(x: -geometry.size.width / 20)
-                                }.frame(width: geometry.size.width)) {
+                                    }.frame(width: geometry.size.width / 2, alignment: .trailing).offset(x: -geometry.size.width / 10)
+                                }.frame(width: geometry.size.width).background(self.backgroundColor.opacity(0.95)).listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))) {
                                     if (self.collapsed[0] == 0) {
                                         ForEach(self.tasksDueToday.filter{($0.task_completed.isEmpty || Calendar.current.compare(Util.localDate(date: Date()), to: $0.task_completed.last!, toGranularity: .day).rawValue != 0) && ($0.task_deletedAt == nil || Calendar.current.compare(Util.localDate(date: Date()), to: $0.task_deletedAt!, toGranularity: .day).rawValue < 0)}){
                                             task in
-                                            NavigationLink(destination: EditTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Util.localDate(date: Date()), dayOfWeek: task.task_dayOfWeek, task: task, reminder: task.task_notification ? task.task_reminder! : Util.localDate(date: Date()),
-                                                                                     originalStateDueToday: Util.isTaskDueToday(t: task), editTaskAction: self.$editTaskUpdateAction,
-                                                                                     details: task.task_details, onSave: {
-                                                                                        if (self.editTaskUpdateAction == 1) {
-                                                                                            self.tasksDueToday.remove(at: self.tasksDueToday.firstIndex(of: task)!)
-                                                                                            self.upcomingTasks.append(task)
-                                                                                        } else if (self.editTaskUpdateAction == 2) {
-                                                                                            self.tasksDueToday.append(task)
-                                                                                        }
-                                                                                        self.editTaskUpdateAction = 0
-                                                                                        self.viewRouter.currentView = "todaysGoals"
-                                            })
-                                            ){
-                                                
-                                                Text(task.task_title)
-                                                    .onTapGesture(count: 2) {
-                                                        self.managedObjectContext.performAndWait {
-                                                            task.task_completed.append(Util.localDate(date: Date()))
-                                                        }
-                                                        try? self.managedObjectContext.save()
-                                                        
-                                                        self.viewRouter.currentView = "todaysGoals"
+                                            ZStack {
+                                                NavigationLink(destination: EditTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Util.localDate(date: Date()), dayOfWeek: task.task_dayOfWeek, task: task, reminder: task.task_notification ? task.task_reminder! : Util.localDate(date: Date()),
+                                                                                         originalStateDueToday: Util.isTaskDueToday(t: task), editTaskAction: self.$editTaskUpdateAction,
+                                                                                         details: task.task_details, onSave: {
+                                                                                            if (self.editTaskUpdateAction == 1) {
+                                                                                                self.tasksDueToday.remove(at: self.tasksDueToday.firstIndex(of: task)!)
+                                                                                                self.upcomingTasks.append(task)
+                                                                                            } else if (self.editTaskUpdateAction == 2) {
+                                                                                                self.tasksDueToday.append(task)
+                                                                                            }
+                                                                                            self.editTaskUpdateAction = 0
+                                                                                            self.viewRouter.currentView = "todaysGoals"
+                                                })
+                                                ){
+                                                    EmptyView()
+                                                }
+                                                HStack {
+                                                    Text(task.task_title)
+                                                        .foregroundColor(self.foregroundColor)
+                                                        .onTapGesture(count: 2) {
+                                                            self.managedObjectContext.performAndWait {
+                                                                task.task_completed.append(Util.localDate(date: Date()))
+                                                            }
+                                                            try? self.managedObjectContext.save()
+                                                            
+                                                            self.viewRouter.currentView = "todaysGoals"
+                                                    }
+                                                    Spacer()
+                                                    Image(systemName: "chevron.right")
+                                                        .resizable()
+                                                        .aspectRatio(contentMode: .fit)
+                                                        .frame(width: 7)
+                                                        .foregroundColor(self.foregroundColor)
                                                 }
                                             }
-                                            
                                         }
                                         .onDelete(perform: self.deleteDailyTask)
                                     }
@@ -97,7 +130,7 @@ struct ContentView: View {
                             
                             Section(header:
                                 HStack {
-                                    Text("Upcoming Tasks").frame(width: geometry.size.width / 2, alignment: .leading).offset(x: geometry.size.width / 20)
+                                    Text("Upcoming Tasks").frame(width: geometry.size.width / 2, alignment: .leading).offset(x: geometry.size.width / 20).foregroundColor(self.foregroundColor).padding()
                                     Button(action: {
                                         self.collapsed[1] = 1 - self.collapsed[1]
                                         self.viewRouter.currentView = "todaysGoals"
@@ -107,38 +140,52 @@ struct ContentView: View {
                                                 .resizable()
                                                 .aspectRatio(contentMode: .fit)
                                                 .frame(width: 15, height: 15)
-                                                .foregroundColor(.black)
+                                                .foregroundColor(.white)
                                         } else {
                                             Image(systemName: "plus")
                                                 .resizable()
                                                 .aspectRatio(contentMode: .fit)
                                                 .frame(width: 15, height: 15)
-                                                .foregroundColor(.black)
+                                                .foregroundColor(.white)
                                         }
-                                    }.frame(width: geometry.size.width / 2, alignment: .trailing).offset(x: -geometry.size.width / 20)
-                                }.frame(width: geometry.size.width)){
+                                    }.frame(width: geometry.size.width / 2, alignment: .trailing).offset(x: -geometry.size.width / 10)
+                                }.frame(width: geometry.size.width).background(self.backgroundColor.opacity(0.95)).listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))) {
                                     if (self.collapsed[1] == 0) {
                                         ForEach(self.upcomingTasks
                                             // one time goals should always have due dates
                                             .filter({$0.task_dueDate != nil && $0.task_completed.isEmpty})
                                             .sorted(by: {$0.task_dueDate! < $1.task_dueDate!})){
                                                 task in
-                                                NavigationLink(destination: EditTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Util.localDate(date: Date()), dayOfWeek: task.task_dayOfWeek, task: task, reminder: task.task_notification ? task.task_reminder! : Util.localDate(date: Date()),
-                                                                                         originalStateDueToday: Util.isTaskDueToday(t: task), editTaskAction: self.$editTaskUpdateAction,
-                                                                                         details: task.task_details, onSave: {
-                                                                                            if (self.editTaskUpdateAction == 2) {
-                                                                                                self.upcomingTasks.remove(at: self.upcomingTasks.firstIndex(of: task)!)
-                                                                                                self.tasksDueToday.append(task)
-                                                                                            }
-                                                                                            self.editTaskUpdateAction = 0
-                                                                                            self.viewRouter.currentView = "todaysGoals"
-                                                })
-                                                ){
+                                                ZStack {
+                                                    NavigationLink(destination: EditTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Util.localDate(date: Date()), dayOfWeek: task.task_dayOfWeek, task: task, reminder: task.task_notification ? task.task_reminder! : Util.localDate(date: Date()),
+                                                                                             originalStateDueToday: Util.isTaskDueToday(t: task), editTaskAction: self.$editTaskUpdateAction,
+                                                                                             details: task.task_details, onSave: {
+                                                                                                if (self.editTaskUpdateAction == 2) {
+                                                                                                    self.upcomingTasks.remove(at: self.upcomingTasks.firstIndex(of: task)!)
+                                                                                                    self.tasksDueToday.append(task)
+                                                                                                }
+                                                                                                self.editTaskUpdateAction = 0
+                                                                                                self.viewRouter.currentView = "todaysGoals"
+                                                    })
+                                                    ){
+                                                        EmptyView()
+                                                    }
                                                     HStack() {
                                                         Text(task.task_title)
                                                             .frame(width: geometry.size.height/5, alignment: .leading)
+                                                            .foregroundColor(self.foregroundColor)
+                                                        
+                                                        
                                                         Text(Util.dateToString(date: task.task_dueDate!))
-                                                            .frame(width: geometry.size.height/5, alignment: .trailing)
+                                                            .frame(width: geometry.size.height/5)
+                                                            .foregroundColor(self.foregroundColor)
+                                                        
+                                                        Spacer()
+                                                        Image(systemName: "chevron.right")
+                                                            .resizable()
+                                                            .aspectRatio(contentMode: .fit)
+                                                            .frame(width: 7)
+                                                            .foregroundColor(self.foregroundColor)
                                                     }.onTapGesture(count: 2) {
                                                         self.managedObjectContext.performAndWait {
                                                             task.task_completed.append(Util.localDate(date: Date()))
@@ -149,12 +196,14 @@ struct ContentView: View {
                                                     }
                                                 }
                                         }
+                                            
+                                        .onDelete(perform: self.deleteUpComingTask)
                                     }
                             }
                             
                             Section(header:
                                 HStack {
-                                    Text("Completed Tasks").frame(width: geometry.size.width / 2, alignment: .leading).offset(x: geometry.size.width / 20)
+                                    Text("Completed Tasks").frame(width: geometry.size.width / 2, alignment: .leading).offset(x: geometry.size.width / 20).foregroundColor(self.foregroundColor).padding()
                                     Button(action: {
                                         self.collapsed[2] = 1 - self.collapsed[2]
                                         self.viewRouter.currentView = "todaysGoals"
@@ -164,28 +213,40 @@ struct ContentView: View {
                                                 .resizable()
                                                 .aspectRatio(contentMode: .fit)
                                                 .frame(width: 15, height: 15)
-                                                .foregroundColor(.black)
+                                                .foregroundColor(.white)
                                         } else {
                                             Image(systemName: "plus")
                                                 .resizable()
                                                 .aspectRatio(contentMode: .fit)
                                                 .frame(width: 15, height: 15)
-                                                .foregroundColor(.black)
+                                                .foregroundColor(.white)
                                         }
-                                    }.frame(width: geometry.size.width / 2, alignment: .trailing).offset(x: -geometry.size.width / 20)
-                                }.frame(width: geometry.size.width)) {
+                                    }.frame(width: geometry.size.width / 2, alignment: .trailing).offset(x: -geometry.size.width / 10)
+                                }.frame(width: geometry.size.width).background(self.backgroundColor.opacity(0.95)).listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)))  {
                                     if (self.collapsed[2] == 0) {
                                         ForEach(self.getSortedCompletedTasks()){
                                             task in
-                                            NavigationLink(destination: ViewTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Util.localDate(date: Date()), dayOfWeek: task.task_dayOfWeek, details: task.task_details, onSave: {})
-                                            ){
-                                                Text(task.task_title)
+                                            ZStack {
+                                                NavigationLink(destination: ViewTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Util.localDate(date: Date()), dayOfWeek: task.task_dayOfWeek, details: task.task_details, onSave: {})
+                                                ){
+                                                    EmptyView()
+                                                    
+                                                }
+                                                HStack { Text(task.task_title).foregroundColor(self.foregroundColor)
+                                                    Spacer()
+                                                    Image(systemName: "chevron.right")
+                                                        .resizable()
+                                                        .aspectRatio(contentMode: .fit)
+                                                        .frame(width: 7)
+                                                        .foregroundColor(self.foregroundColor)
+                                                }
                                             }
                                         }
                                     }
                             }
+                            
                         }
-                        .navigationBarTitle("Today's Goals")
+                        .navigationBarTitle(Text("Your Goals").foregroundColor(Color.white).font(.subheadline), displayMode: .large)
                     }
                 } else if self.viewRouter.currentView == "history" {
                     NavigationView {
@@ -197,17 +258,15 @@ struct ContentView: View {
                                 }
                             }
                         }
-                        .navigationBarTitle(Text("History"))
+                        .navigationBarTitle(Text("History").foregroundColor(Color.white))
                     }
-                    
-                    
                 }
                 
+                Divider().background(Color.white)
                 
-                Spacer()
                 ZStack {
                     HStack {
-                        CustomTabViewItem(name: "house", width: geometry.size.width/3, foregroundColor: self.viewRouter.currentView == "todaysGoals" ? .black : .gray, onTapGesture: {self.viewRouter.currentView = "todaysGoals"})
+                        CustomTabViewItem(name: "house", width: geometry.size.width/3, foregroundColor: self.viewRouter.currentView == "todaysGoals" ? .white : .gray, onTapGesture: {self.viewRouter.currentView = "todaysGoals"})
                         
                         ZStack {
                             Button(action: {
@@ -222,8 +281,8 @@ struct ContentView: View {
                                 Image(systemName: "plus.circle.fill")
                                     .resizable()
                                     .aspectRatio(contentMode: .fit)
-                                    .frame(width: 75, height: 75)
-                                    .foregroundColor(.blue)
+                                    .frame(width: 70, height: 70)
+                                    .foregroundColor(.white)
                             }.sheet(isPresented: self.$modalDisplayed) {
                                 AddTaskView(title: self.$task_title, frequency: self.$task_frequency,
                                             notificationsOn: self.$task_notification,
@@ -272,11 +331,11 @@ struct ContentView: View {
                         .offset(y: -geometry.size.height/10/2)
                         
                         
-                        CustomTabViewItem(name: "clock", width: geometry.size.width/3, foregroundColor: self.viewRouter.currentView == "history" ? .black : .gray, onTapGesture: {self.viewRouter.currentView = "history"})
+                        CustomTabViewItem(name: "clock", width: geometry.size.width/3, foregroundColor: self.viewRouter.currentView == "history" ? .white : .gray, onTapGesture: {self.viewRouter.currentView = "history"})
                         
                     }
                     .frame(width: geometry.size.width, height: geometry.size.height/10)
-                    .background(Color.white.shadow(radius: 2))
+                    .background(self.backgroundColor)
                 }
             }.edgesIgnoringSafeArea(.bottom)
         }.onAppear() {
@@ -362,6 +421,14 @@ struct ContentView: View {
         }
         try? self.managedObjectContext.save()
         self.tasksDueToday.remove(at: indexSet.first!)
+    }
+    
+    func deleteUpComingTask(with indexSet: IndexSet){
+        self.managedObjectContext.performAndWait {
+            self.upcomingTasks[indexSet.first!].task_deletedAt = Util.localDate(date: Date())
+        }
+        try? self.managedObjectContext.save()
+        self.upcomingTasks.remove(at: indexSet.first!)
     }
     
     func getSortedCompletedTasks() -> [Task] {
