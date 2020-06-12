@@ -26,48 +26,45 @@ struct ViewTaskView: View {
     var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
     
     var body: some View {
-        NavigationView {
-            Form {
-                Section{
-                    CustomTextField(placeholder: Text("Task Title").foregroundColor(Color.white.opacity(0.4)), text: $title).foregroundColor(Color.white).disabled(true)
-                    
-                    Picker(selection: self.$frequency, label: Text("Repeat").foregroundColor(.white)) {
-                        ForEach(0 ..< self.frequencies.count, id: \.self) {
-                            Text(self.frequencies[$0]).tag($0)
+        Form {
+            Section{
+                CustomTextField(placeholder: Text("Task Title").foregroundColor(Color.white.opacity(0.4)), text: $title).foregroundColor(Color.white).disabled(true)
+                
+                Picker(selection: self.$frequency, label: Text("Repeat").foregroundColor(.white)) {
+                    ForEach(0 ..< self.frequencies.count, id: \.self) {
+                        Text(self.frequencies[$0]).tag($0)
+                    }.colorInvert().colorMultiply(.white)
+                }.disabled(true)
+                
+                if (frequency == 2){
+                    Picker(selection: $dayOfWeek, label: Text("Select Day").foregroundColor(.white)) {
+                        ForEach(0 ..< self.days.count, id: \.self) {
+                            Text(self.days[$0]).tag($0)
                         }.colorInvert().colorMultiply(.white)
                     }.disabled(true)
-                    
-                    if (frequency == 2){
-                        Picker(selection: $dayOfWeek, label: Text("Select Day").foregroundColor(.white)) {
-                            ForEach(0 ..< self.days.count, id: \.self) {
-                                Text(self.days[$0]).tag($0)
-                            }.colorInvert().colorMultiply(.white)
-                        }.disabled(true)
-                    }
-                    
-                    if (frequency == 0) {
-                        DatePicker(selection: $dueDate, in: Date()..., displayedComponents: .date) {
-                            Text("Select due date")
-                        }.colorInvert().colorMultiply(.white).disabled(true)
-                    }
                 }
                 
-                
-                Section {
-                    Toggle(isOn: self.$notificationsOn) {
-                        Text("Receive Notificatons").foregroundColor(.white)
-                    }.disabled(true)
+                if (frequency == 0) {
+                    DatePicker(selection: $dueDate, in: Date()..., displayedComponents: .date) {
+                        Text("Select due date")
+                    }.colorInvert().colorMultiply(.white).disabled(true)
                 }
-                
-                Section {
-                    Section {
-                        TextView(txt: self.$details, editable: false)
-                    }.frame(height: 75)
-                }
-                
             }
-        }
-        .navigationBarTitle("View Task")
+            
+            
+            Section {
+                Toggle(isOn: self.$notificationsOn) {
+                    Text("Receive Notificatons").foregroundColor(.white)
+                }.disabled(true)
+            }
+            
+            Section {
+                Section {
+                    TextView(txt: self.$details, editable: false)
+                }.frame(height: 75)
+            }
+            
+        }.navigationBarTitle("View Task")
     }
     
 }
