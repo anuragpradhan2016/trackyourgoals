@@ -14,7 +14,7 @@ struct HistoryDayView: View {
     var tasks: [Task]
     var geometryWidth: CGFloat
     
-    @State var collapsed = [0, 1] // i = 1 => the ith section of home is collapsed
+    @State var collapsed = [0, 0] // i = 1 => the ith section of home is collapsed
     
     var body: some View {
         List {
