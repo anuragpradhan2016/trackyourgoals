@@ -7,10 +7,12 @@
         <attribute name="task_deletedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="task_dueDate" optional="YES" attributeType="Date" usesScalarValueType="YES"/>
         <attribute name="task_frequency" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="task_id" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="task_notification" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="task_reminder" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="task_title" optional="YES" attributeType="String"/>
     </entity>
     <elements>
-        <element name="Task" positionX="-63" positionY="-18" width="128" height="163"/>
+        <element name="Task" positionX="-63" positionY="-18" width="128" height="193"/>
     </elements>
 </model>

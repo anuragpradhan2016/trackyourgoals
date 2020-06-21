@@ -11,7 +11,7 @@ import SwiftUI
 
 struct AddTaskView: View {
     @Environment(\.presentationMode) private var presentationMode
-    
+
     @Binding var title: String
     @Binding var frequency: Int
     @Binding var notificationsOn: Bool
@@ -19,8 +19,8 @@ struct AddTaskView: View {
     @Binding var modalDisplayed: Bool
     @Binding var dueDate: Date
     @Binding var dayOfWeek: Int
-    
-    @State var reminder: Date = Date()
+    @Binding var reminder: Date
+    @State var id: Int
     
     var onSubmit: () -> ()
     
@@ -62,12 +62,9 @@ struct AddTaskView: View {
                     
                     if self.notificationsOn {
                         if self.frequency == 0 {
-                            Text("\(Util.localDate(date: Date()))")
-                            Text("\(Util.getNextDay(date: self.dueDate))")
-                            
-                            DatePicker("Select Reminder Date and Time: ", selection: self.$reminder, in: Util.localDate(date: Date())...Util.getPreviousMinute(date: Util.getNextDay(date: self.dueDate)), displayedComponents: [.hourAndMinute, .date])
+                            DatePicker("Select Reminder Date and Time: ", selection: self.$reminder, in: Util.localDate(date: Date())...Util.getPreviousMinute(date: Util.getNextDay(date: Util.stringToDate(date: Util.dateToString(date: self.dueDate)))), displayedComponents: [.hourAndMinute, .date])
                         } else {
-                            DatePicker("Select Reminder Time: ", selection: self.$reminder, in: ...self.dueDate, displayedComponents: [.hourAndMinute])
+                            DatePicker("Select Reminder Time: ", selection: self.$reminder, displayedComponents: [.hourAndMinute])
                         }
                     }
                 }
@@ -79,40 +76,7 @@ struct AddTaskView: View {
                         self.onSubmit()
                         
                         if self.notificationsOn {
-                            UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) {(status, _) in
-                                
-                                if status {
-                                    let content = UNMutableNotificationContent()
-                                    let trigger: UNNotificationTrigger
-                                    content.sound = .default
-                                    
-                                    if self.frequency == 0 {
-                                        content.title = "\(self.title) is due on \(Util.dateToString(date: self.dueDate))!"
-                                        trigger = UNCalendarNotificationTrigger(dateMatching: Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: self.reminder), repeats: false)
-                                    } else {
-                                        content.title = "Your goal \(self.title) is due today!"
-                                        
-                                        if self.frequency == 1 {
-                                            trigger = UNCalendarNotificationTrigger(dateMatching:  Calendar.current.dateComponents([.hour, .minute], from: self.reminder), repeats: true)
-                                        } else {
-                                            while Util.getWeekDay(date: self.reminder) != self.days[self.dayOfWeek] {
-                                                self.reminder = Util.getNextDay(date: self.reminder)
-                                            }
-                                            
-                                            trigger = UNCalendarNotificationTrigger(dateMatching:  Calendar.current.dateComponents(self.frequency == 1 ? [.hour, .minute] : [.weekday, .hour, .minute], from: self.reminder), repeats: true)
-                                        }
-                                        
-                                    }
-                                    
-                                    let request = UNNotificationRequest(identifier: "reminderForGoals", content: content, trigger: trigger)
-                                    UNUserNotificationCenter.current().add(request, withCompletionHandler: { error in
-                                        if error != nil {
-                                            print("Reminder notification error")
-                                        }
-                                    })
-                                    
-                                }
-                            }
+                            Util.setReminder(id: self.id, frequency: self.frequency, reminder: self.reminder, title: self.title, dayOfWeek: self.dayOfWeek, dueDate: self.dueDate)
                         }
                     }) {
                         Text("Submit")

@@ -19,6 +19,7 @@ struct EditTaskView: View {
     @State var dueDate: Date
     @State var dayOfWeek: Int
     @State var task: Task
+    @State var reminder: Date
     @State var originalStateDueToday: Bool
     @Binding var editTaskAction: Int
     
@@ -55,8 +56,16 @@ struct EditTaskView: View {
                 
                 
                 Section {
-                    Toggle(isOn: self.$notificationsOn) {
+                    Toggle(isOn: $notificationsOn) {
                         Text("Receive Notificatons")
+                    }
+                    
+                    if self.notificationsOn {
+                        if self.frequency == 0 {
+                            DatePicker("Select Reminder Date and Time: ", selection: self.$reminder, in: Util.localDate(date: Date())...Util.getPreviousMinute(date: Util.getNextDay(date: Util.stringToDate(date: Util.dateToString(date: self.dueDate)))), displayedComponents: [.hourAndMinute, .date])
+                        } else {
+                            DatePicker("Select Reminder Time: ", selection: self.$reminder, displayedComponents: [.hourAndMinute])
+                        }
                     }
                 }
                 
@@ -92,7 +101,19 @@ struct EditTaskView: View {
                                     self.editTaskAction = 0
                                 }
                             }
+                            if (self.notificationsOn) {
+                                self.task.task_reminder = self.reminder
+                            }
                         }
+                        
+                        let center = UNUserNotificationCenter.current()
+                        center.removePendingNotificationRequests(withIdentifiers: ["\(self.task.task_id)"])
+                        center.removeDeliveredNotifications(withIdentifiers: ["\(self.task.task_id)"])
+                        
+                        if (self.notificationsOn) {
+                            Util.setReminder(id: self.task.task_id, frequency: self.frequency, reminder: self.reminder, title: self.title, dayOfWeek: self.dayOfWeek, dueDate: self.dueDate)
+                        }
+                        
                         try? self.managedObjectContext.save()
                         self.onSave()
                         self.presentationMode.wrappedValue.dismiss()

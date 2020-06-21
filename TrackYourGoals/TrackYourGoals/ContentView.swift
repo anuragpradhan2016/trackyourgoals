@@ -17,9 +17,11 @@ struct ContentView: View {
     @State var task_title = ""
     @State var task_frequency = 0
     @State var task_notification = false
+    @State var reminder = Util.localDate(date: Date())
     @State var addTaskCompleted = false
     @State var dueDate = Util.localDate(date: Date())
     @State var dayOfWeek = 0
+    @State var numOfTasks = 0
     
     @State var taskSwipe = CGSize.zero
     @State var editTaskUpdateAction: Int = 0 // 0-> nothing, 1 -> delete from daily, 2 -> add to daily
@@ -62,7 +64,7 @@ struct ContentView: View {
                                     if (self.collapsed[0] == 0) {
                                         ForEach(self.tasksDueToday.filter{($0.task_completed.isEmpty || Calendar.current.compare(Util.localDate(date: Date()), to: $0.task_completed.last!, toGranularity: .day).rawValue != 0) && ($0.task_deletedAt == nil || Calendar.current.compare(Util.localDate(date: Date()), to: $0.task_deletedAt!, toGranularity: .day).rawValue < 0)}){
                                             task in
-                                            NavigationLink(destination: EditTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Util.localDate(date: Date()), dayOfWeek: task.task_dayOfWeek, task: task,
+                                            NavigationLink(destination: EditTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Util.localDate(date: Date()), dayOfWeek: task.task_dayOfWeek, task: task, reminder: task.task_notification ? task.task_reminder! : Util.localDate(date: Date()),
                                                                                      originalStateDueToday: Util.isTaskDueToday(t: task), editTaskAction: self.$editTaskUpdateAction, onSave: {
                                                                                         if (self.editTaskUpdateAction == 1) {
                                                                                             self.tasksDueToday.remove(at: self.tasksDueToday.firstIndex(of: task)!)
@@ -119,7 +121,7 @@ struct ContentView: View {
                                             .filter({$0.task_dueDate != nil && $0.task_completed.isEmpty})
                                             .sorted(by: {$0.task_dueDate! < $1.task_dueDate!})){
                                                 task in
-                                                NavigationLink(destination: EditTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Util.localDate(date: Date()), dayOfWeek: task.task_dayOfWeek, task: task,
+                                                NavigationLink(destination: EditTaskView(title: task.task_title, frequency: task.task_frequency, notificationsOn: task.task_notification, dueDate: task.task_dueDate ?? Util.localDate(date: Date()), dayOfWeek: task.task_dayOfWeek, task: task, reminder: task.task_notification ? task.task_reminder! : Util.localDate(date: Date()),
                                                                                          originalStateDueToday: Util.isTaskDueToday(t: task), editTaskAction: self.$editTaskUpdateAction, onSave: {
                                                                                             if (self.editTaskUpdateAction == 2) {
                                                                                                 self.upcomingTasks.remove(at: self.upcomingTasks.firstIndex(of: task)!)
@@ -222,7 +224,7 @@ struct ContentView: View {
                                 AddTaskView(title: self.$task_title, frequency: self.$task_frequency,
                                             notificationsOn: self.$task_notification,
                                             taskSubmitted: self.$addTaskCompleted, modalDisplayed: self.$modalDisplayed,
-                                            dueDate: self.$dueDate, dayOfWeek: self.$dayOfWeek, onSubmit: {
+                                            dueDate: self.$dueDate, dayOfWeek: self.$dayOfWeek, reminder: self.$reminder, id: self.numOfTasks, onSubmit: {
                                                 if (self.addTaskCompleted){
                                                     
                                                     let task = Task(context: self.managedObjectContext)
@@ -233,7 +235,10 @@ struct ContentView: View {
                                                     task.task_createdAt = Util.localDate(date: Date())
                                                     task.task_dueDate = Util.localDate(date: self.dueDate)
                                                     task.task_dayOfWeek = self.dayOfWeek
+                                                    task.task_reminder = self.reminder
                                                     task.task_completed = []
+                                                    task.task_id = self.numOfTasks
+                                                    self.numOfTasks += 1
                                                     
                                                     do {
                                                         try self.managedObjectContext.save()
@@ -343,6 +348,7 @@ struct ContentView: View {
                 }
             }
             self.history = self.history.filter({!$0.value.isEmpty})
+            self.numOfTasks = self.tasks.count
         }
     }
     
